@@ -179,8 +179,8 @@ static NSString *DataStoreKeyActiveAccountChainId         = @"ACTIVE_ACCOUNT_CHA
         _providers = [NSMutableDictionary dictionary];
 
         // Start up a mainnet provider to make sure we get ether fiat prices
-//        [self getProvider:ChainIdHomestead];
-        [self getProvider:ChainIdPrivate];
+        [self getProvider:ChainIdHomestead];
+//        [self getProvider:ChainIdPrivate];
         _activeAccountIndex = AccountNotFound;
         [self reloadSigners];
         
@@ -195,11 +195,11 @@ static NSString *DataStoreKeyActiveAccountChainId         = @"ACTIVE_ACCOUNT_CHA
                 [timer invalidate];
                 return;
             }
-//            [weakSelf checkForNewAccountsChainId:ChainIdHomestead];
+            [weakSelf checkForNewAccountsChainId:ChainIdHomestead];
 //            [weakSelf checkForNewAccountsChainId:ChainIdRopsten];
 //            [weakSelf checkForNewAccountsChainId:ChainIdRinkeby];
 //            [weakSelf checkForNewAccountsChainId:ChainIdKovan];
-            [weakSelf checkForNewAccountsChainId:ChainIdPrivate];
+//            [weakSelf checkForNewAccountsChainId:ChainIdPrivate];
         }];
     }
     return self;
@@ -395,11 +395,11 @@ static NSString *DataStoreKeyActiveAccountChainId         = @"ACTIVE_ACCOUNT_CHA
     // Remove all existing signers (the provider is no longer valid)
     _accounts = [NSMutableArray array];
     
-//     [self addSigners:_keychainKey chainId:ChainIdHomestead];
+     [self addSigners:_keychainKey chainId:ChainIdHomestead];
 //    [self addSigners:[_keychainKey stringByAppendingString:@"/ropsten"] chainId:ChainIdRopsten];
 //    [self addSigners:[_keychainKey stringByAppendingString:@"/rinkeby"] chainId:ChainIdRinkeby];
 //    [self addSigners:[_keychainKey stringByAppendingString:@"/kovan"] chainId:ChainIdKovan];
-    [self addSigners:[_keychainKey stringByAppendingString:@"/TestNet"] chainId:ChainIdPrivate];
+//    [self addSigners:[_keychainKey stringByAppendingString:@"/TestNet"] chainId:ChainIdPrivate];
     
     // Sort the accounts
     [_accounts sortUsingComparator:^NSComparisonResult(Signer *a, Signer *b) {
@@ -679,8 +679,8 @@ static NSString *DataStoreKeyActiveAccountChainId         = @"ACTIVE_ACCOUNT_CHA
     
     __block Account *account = nil;
     __weak Wallet *weakSelf = self;
-//    __block ChainId chainId = ChainIdHomestead;
-    __block ChainId chainId = ChainIdPrivate;
+    __block ChainId chainId = ChainIdHomestead;
+//    __block ChainId chainId = ChainIdPrivate;
     void (^onFilish)(UIViewController *,NSString *,NSString *) = ^(UIViewController *vc,NSString *name,NSString *pwd) {
         [account encryptSecretStorageJSON:pwd callback:^(NSString *json) {
             Signer *signer = nil;
@@ -791,8 +791,8 @@ static NSString *DataStoreKeyActiveAccountChainId         = @"ACTIVE_ACCOUNT_CHA
     
     __block Account *account = nil;
     __weak Wallet *weakSelf = self;
-//    __block ChainId chainId = ChainIdHomestead;
-    __block ChainId chainId = ChainIdPrivate;
+    __block ChainId chainId = ChainIdHomestead;
+//    __block ChainId chainId = ChainIdPrivate;
     
     void(^onCreateReturn)(AddWalletVC *,NSString *,NSString *, NSString *) = ^(AddWalletVC *addWalletVC, NSString *name, NSString *pwd, NSString *hint) {
         account = [Account randomMnemonicAccount];
