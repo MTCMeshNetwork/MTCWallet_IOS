@@ -1,0 +1,6 @@
+framework module Pods_MTCWallet {
+  umbrella header "Pods-MTCWallet-umbrella.h"
+
+  export *
+  module * { export * }
+}

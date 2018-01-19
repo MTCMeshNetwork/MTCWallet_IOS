@@ -1,0 +1,20 @@
+PODS:
+  - DZNEmptyDataSet (1.8.1)
+  - Masonry (1.0.2)
+  - SDWebImage (4.2.2):
+    - SDWebImage/Core (= 4.2.2)
+  - SDWebImage/Core (4.2.2)
+
+DEPENDENCIES:
+  - DZNEmptyDataSet (~> 1.8.1)
+  - Masonry (~> 1.0.2)
+  - SDWebImage (~> 4.2.2)
+
+SPEC CHECKSUMS:
+  DZNEmptyDataSet: 9525833b9e68ac21c30253e1d3d7076cc828eaa7
+  Masonry: 7c429b56da9d4ee0bbb3ed77a5ea710d6a5df39e
+  SDWebImage: 89a9d32cd520bbb46eb14e541d5109b3564af198
+
+PODFILE CHECKSUM: 612bbce8d4675031de4036d7f842a100ffb51fea
+
+COCOAPODS: 1.4.0
