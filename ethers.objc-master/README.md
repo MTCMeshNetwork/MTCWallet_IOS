@@ -140,12 +140,3 @@ License
 =======
 
 MIT License.
-
-
-Donations
-=========
-
-Everything is released under the MIT license, so these is **absolutely no need** to donate anything. If you would like to buy me a coffee though, I certainly won't complain. =)
-
-- **Ethereum:** `0x2F40e3b51533698A14aFcf7Fe386050e22e1FdB2`
-- **Bitcoin:** `18QMCEt71xUioVncupxy8ZajKooFkpG4Y6`
