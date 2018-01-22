@@ -116,6 +116,7 @@ static NSData *NullData = nil;
         }
         _nonce = [nonce integerValue];
         
+        
         _data = queryPath(info, @"dictionary:data/data");
         if (!_data) {
             _data = queryPath(info, @"dictionary:input/data");
@@ -123,11 +124,35 @@ static NSData *NullData = nil;
                 _data = NullData;
             }
         }
+        if (_data.length>=4&&[_data.description rangeOfString:@"a9059cbb"].location == 1) {
+            _tokenTo = [Address addressWithData:[_data subdataWithRange:NSMakeRange(16, 20)]];
+            _tokenValue = [BigNumber bigNumberWithData:[_data subdataWithRange:NSMakeRange(36, 32)]];
+        }
         
         _value = queryPath(info, @"dictionary:value/bigNumber");
         if (!_value) {
             _value = [BigNumber constantZero];
         }
+        
+        
+        NSNumber *isError = queryPath(info, @"dictionary:isError/integer");
+        if (!isError) {
+            isError = queryPath(info, @"dictionary:status/integer");
+            switch (isError.integerValue) {
+                case 0:
+                    _isError = -1;
+                    break;
+                case 1:
+                    _isError = 0;
+                    break;
+                case 2:
+                    _isError = 1;
+                    break;
+            }
+        }else{
+            _isError = [isError integerValue];
+        }
+        
     }
     return self;
 }
@@ -176,6 +201,9 @@ static NSData *NullData = nil;
     [info setObject:[SecureData dataToHexString:_data] forKey:@"data"];
     
     [info setObject:[_value decimalString] forKey:@"value"];
+    
+    
+    [info setObject:[NSString stringWithFormat:@"%ld", (long)_isError] forKey:@"isError"];
     
     return info;
 }
@@ -248,11 +276,11 @@ static NSData *NullData = nil;
 }
 
 - (NSString*)description {
-    return [NSString stringWithFormat:@"<TransactionInfo hash=%@ blockNumber=%ld blockHash=%@ timestamp=%@ from=%@ to=%@ contractAddress=%@ nonce=%ld gasLimit=%@ gasPrice=%@ gasUsed=%@ cumulativeGasUsed=%@ value=%@ data=%@>",
+    return [NSString stringWithFormat:@"<TransactionInfo hash=%@ blockNumber=%ld blockHash=%@ timestamp=%@ from=%@ to=%@ contractAddress=%@ nonce=%ld gasLimit=%@ gasPrice=%@ gasUsed=%@ cumulativeGasUsed=%@ value=%@ data=%@ isError=%d>",
             [_transactionHash hexString], (unsigned long)_blockNumber, [_blockHash hexString], [NSDate dateWithTimeIntervalSince1970:_timestamp],
             _fromAddress, _toAddress, _contractAddress, (unsigned long)_nonce,
             [_gasLimit decimalString], [_gasPrice decimalString], [_gasUsed decimalString], [_cumulativeGasUsed decimalString],
-            [Payment formatEther:_value], [SecureData dataToHexString:_data]
+            [Payment formatEther:_value], [SecureData dataToHexString:_data],_isError
             ];
 }
 

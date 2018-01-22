@@ -148,13 +148,13 @@ static NSString *DataStoreKeyTransactionsSentPrefix            = @"TRANSACTION_S
 - (ArrayPromise*)updateBlockchainData {
     __weak Signer *weakSelf = self;
 
-    BigNumberPromise *balancePromise = [_provider getBalance:self.address];
-    [balancePromise onCompletion:^(BigNumberPromise *promise) {
-        if (!promise.result || promise.error) {
-            return;
-        }
-        [weakSelf _setBalance:promise.value];
-    }];
+//    BigNumberPromise *balancePromise = [_provider getBalance:self.address];
+//    [balancePromise onCompletion:^(BigNumberPromise *promise) {
+//        if (!promise.result || promise.error) {
+//            return;
+//        }
+//        [weakSelf _setBalance:promise.value];
+//    }];
     
     //    BigNumberPromise *balanceTokenPromise = [_provider getToken:@"0x4136C5a204Fe23140A7D23dd950434DC5490eBEc" balance:self.address];
     //    [balancePromise onCompletion:^(BigNumberPromise *promise) {
@@ -194,7 +194,7 @@ static NSString *DataStoreKeyTransactionsSentPrefix            = @"TRANSACTION_S
         //[self setTxBlock:highestBlock forAddress:address];
     }];
     
-    ArrayPromise *allPromises = [Promise all:@[ balancePromise,tokenBalancePromise, noncePromise, transactionPromise ]];
+    ArrayPromise *allPromises = [Promise all:@[tokenBalancePromise, noncePromise, transactionPromise ]];
     [allPromises onCompletion:^(ArrayPromise *promise) {
         if (promise.error) { return; }
         [weakSelf _setSyncDate:[NSDate timeIntervalSinceReferenceDate]];
@@ -256,7 +256,6 @@ static NSString *DataStoreKeyTransactionsSentPrefix            = @"TRANSACTION_S
     
     NSString *key = [DataStoreKeyBalancePrefix stringByAppendingString:self.address.checksumAddress];
     [_dataStore setString:[balance hexString] forKey:key];
-    
     __weak Signer *weakSelf = self;
     NSDictionary *info = @{
                            SignerNotificationSignerKey: self,
@@ -273,12 +272,6 @@ static NSString *DataStoreKeyTransactionsSentPrefix            = @"TRANSACTION_S
 
 
 - (BigNumber *)balanceForToken:(NSString *)tokenAddress {
-//    NSString *key = [[DataStoreKeyTokenBalancePrefix stringByAppendingString:token] stringByAppendingString:self.address.checksumAddress];
-//    NSString *valueHex = [_dataStore stringForKey:key];
-//    if (!valueHex) { return [BigNumber constantZero]; }
-//    BigNumber *value = [BigNumber bigNumberWithHexString:valueHex];
-//    if (!value) { return [BigNumber constantZero]; }
-//    return value;
     for (Erc20Token *token in _tokenBalance) {
         if ([token.address.checksumAddress isEqualToString:tokenAddress]) {
             return token.balance;
@@ -286,27 +279,6 @@ static NSString *DataStoreKeyTransactionsSentPrefix            = @"TRANSACTION_S
     }
     return [BigNumber constantZero];
 }
-
-//- (void)_setToken:(NSString *)token Balance: (BigNumber*)balance {
-//    BigNumber *oldBalance = [self.balanceOf valueForKey:token];
-//    if ([oldBalance isEqual:balance]) { return; }
-//
-//    NSString *key = [DataStoreKeyTokenBalancePrefix stringByAppendingFormat:@"%@_%@",token,self.address.checksumAddress];
-//    [_dataStore setString:[balance hexString] forKey:key];
-//
-//    __weak Signer *weakSelf = self;
-//    NSDictionary *info = @{
-//                           SignerNotificationSignerKey: self,
-//                           SignerNotificationBalanceKey: balance,
-//                           SignerNotificationFormerBalanceKey: oldBalance,
-//                           };
-//    dispatch_async(dispatch_get_main_queue(), ^() {
-//        [[NSNotificationCenter defaultCenter] postNotificationName:SignerTokenBalanceDidChangeNotification
-//                                                            object:weakSelf
-//                                                          userInfo:info];
-//    });
-//}
-
 
 - (BigNumber*)balance {
     NSString *key = [DataStoreKeyBalancePrefix stringByAppendingString:self.address.checksumAddress];
@@ -320,6 +292,7 @@ static NSString *DataStoreKeyTransactionsSentPrefix            = @"TRANSACTION_S
 - (void)_setTokenBalance:(NSArray<Erc20Token*>*)tokenBalances {
     NSMutableArray *serialized = [NSMutableArray arrayWithCapacity:tokenBalances.count];
     for (Erc20Token *entry in tokenBalances) {
+        if(entry.address == nil) [self _setBalance:entry.balance];
         [serialized addObject:[entry dictionaryRepresentation]];
     }
     NSString *key = [DataStoreKeyTokensPrefix stringByAppendingString:self.address.checksumAddress];
@@ -408,7 +381,9 @@ static NSString *DataStoreKeyTransactionsSentPrefix            = @"TRANSACTION_S
 
 // Sets the list of committed transactions
 - (void)_setTransactionHistory: (NSArray<TransactionInfo*>*)transactionHistory {
-    
+    if (transactionHistory.count == 0) {
+        return;
+    }
     // Sort the transactions by blocktime and fallback onto hash (@TODO: Maybe from + nonce makes more sense?)
     NSMutableArray<TransactionInfo*> *transactions = [transactionHistory mutableCopy];
     [transactions sortUsingComparator:^NSComparisonResult(TransactionInfo *a, TransactionInfo *b) {
@@ -455,7 +430,9 @@ static NSString *DataStoreKeyTransactionsSentPrefix            = @"TRANSACTION_S
 
         [changedTransactions addObject:entry];
     }
-    
+//    if ([self.address.checksumAddress isEqualToString:@"0xe5424cb21CC8caB3d825841574ef747C7d632b0c"]) {
+//        NSLog(@"交易记录:%ld",serialized.count);
+//    }
     NSString *key = [DataStoreKeyTransactionHistoryPrefix stringByAppendingString:self.address.checksumAddress];
     [_dataStore setObject:serialized forKey:key];
     

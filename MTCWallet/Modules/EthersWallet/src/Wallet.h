@@ -148,7 +148,7 @@ typedef enum WalletError {
 
 // Add by lkl
 
-/* 验证交易密码 */
+/* 验证钱包密码 */
 - (void)verifyTransactionPassword:(NSString *)password index:(NSUInteger)index callBack:(void (^)(BOOL))callback;
 
 - (void)removeAccountAtIndex: (NSUInteger)index;

@@ -11,6 +11,9 @@
 
 @implementation Erc20Token
 
++ (Erc20Token *)erc20Token:(NSString *)address symbol:(NSString *)symbol {
+    return [[Erc20Token alloc] initWithDictionary:@{@"address":address,@"symbol":symbol}];
+}
 
 + (Erc20Token *)tokenFromDictionary:(NSDictionary *)dic {
     return [[Erc20Token alloc] initWithDictionary:dic];

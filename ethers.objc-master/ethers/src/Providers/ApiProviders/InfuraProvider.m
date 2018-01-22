@@ -47,8 +47,8 @@
         case ChainIdRopsten:
             host = @"ropsten.infura.io";
             break;
-        default:
-            host = @"192.168.1.84";
+        case ChainIdPrivate:
+            host = @"";
             break;
     }
     

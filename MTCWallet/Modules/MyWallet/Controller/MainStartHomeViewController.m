@@ -24,7 +24,7 @@
 
 #import <ethers/Erc20Token.h>
 
-#define IMAGE_HEIGHT 100
+#define IMAGE_HEIGHT 80
 #define NAVBAR_COLORCHANGE_POINT (IMAGE_HEIGHT - NAVIGATION_BAR_HEIGHT * 2)
 
 @interface MainStartHomeViewController () <UITableViewDelegate,UITableViewDataSource,MGSwipeTableCellDelegate,AccountsViewControllerDelegate,CAAnimationDelegate>
@@ -33,7 +33,7 @@
 @property (nonatomic, strong) UIView *topView;
 @property (nonatomic, strong) UILabel *assetsLb;
 @property (nonatomic, strong) UILabel *totalLb;
-@property (nonatomic, strong) UIView *colorView;
+//@property (nonatomic, strong) UIView *colorView;
 @property (nonatomic, strong) NSArray<Erc20Token *> *currencyArray;
 @end
 
@@ -131,7 +131,7 @@
     [self.tableView setTableHeaderView:self.topView];
     [self.topView addSubview:self.assetsLb];
     [self.topView addSubview:self.totalLb];
-    [self.topView addSubview:self.colorView];
+//    [self.topView addSubview:self.colorView];
     
     [self.assetsLb mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.equalTo(self.topView);
@@ -140,13 +140,13 @@
     
     [self.totalLb mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.equalTo(self.topView);
-        make.bottom.equalTo(self.topView).offset(-20);
+        make.bottom.equalTo(self.topView).offset(-22);
     }];
     
-    [self.colorView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.right.bottom.equalTo(self.topView);
-        make.height.mas_equalTo(@10);
-    }];
+//    [self.colorView mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.left.right.bottom.equalTo(self.topView);
+//        make.height.mas_equalTo(@10);
+//    }];
 }
 
 - (void)rightBarButtonItemClick {
@@ -183,22 +183,15 @@
     CGFloat offsetY = scrollView.contentOffset.y;
     if (offsetY > NAVBAR_COLORCHANGE_POINT)
     {
-        CGFloat alpha = (offsetY - NAVBAR_COLORCHANGE_POINT) / NAVIGATION_BAR_HEIGHT;
-        [self wr_setNavBarBackgroundAlpha:alpha];
-        [self wr_setNavBarTintColor:[[UIColor blackColor] colorWithAlphaComponent:alpha]];
-        [self wr_setNavBarTitleColor:[[UIColor commonWhiteColor] colorWithAlphaComponent:alpha]];
         [self wr_setStatusBarStyle:UIStatusBarStyleDefault];
     } else {
-        [self wr_setNavBarBackgroundAlpha:0];
-        [self wr_setNavBarTintColor:[UIColor whiteColor]];
-        [self wr_setNavBarTitleColor:[UIColor commonWhiteColor]];
         [self wr_setStatusBarStyle:UIStatusBarStyleLightContent];
     }
 }
 
 #pragma mark - UITableViewDataSource
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return self.currencyArray.count + 1;
+    return self.currencyArray.count;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section;{
@@ -211,12 +204,20 @@
 
 #pragma mark - TableViewDelegate
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-    return 3;
+    return (section)?3:11;
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
     UIView *headerView = [[UIView alloc] init];
-    headerView.backgroundColor = [UIColor commonBackgroundColor];
+    if (section) {
+        headerView.backgroundColor = [UIColor mainThemeColor];
+    }else {
+        headerView.backgroundColor = [UIColor mainThemeColor];
+        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 8)];
+        view.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+        view.backgroundColor = [UIColor commonGreenColor];
+        [headerView addSubview:view];
+    }
     return headerView;
 }
 
@@ -226,46 +227,46 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    if (indexPath.section == self.currencyArray.count) {
-        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:[UITableViewCell at_identifier]];
-        [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
-        ZSCustomButton *addBtn = [ZSCustomButton new];
+    //添加新资产
+//    if (indexPath.section == self.currencyArray.count) {
+//        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:[UITableViewCell at_identifier]];
+//        [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
+//        ZSCustomButton *addBtn = [ZSCustomButton new];
 //        addBtn.zs_buttonType = ZSCustomButtonImageLeft;
-        addBtn.zs_buttonType = ZSCustomButtonImageLeft;
-        [addBtn setTitle:NSLocalizedString(@"添加新资产",nil)];
-        [addBtn setTitleColor:[UIColor commonWhiteColor]];
-//        [addBtn setImage:@"set"];
-        [addBtn setBackgroundColor:[UIColor commonCellcolor]];
-        [cell.contentView addSubview:addBtn];
-        [addBtn setUserInteractionEnabled:NO];
-        [addBtn mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.edges.equalTo(cell.contentView);
-        }];
-        return cell;
-    }
-    else {
+//        [addBtn setTitle:NSLocalizedString(@"添加新资产",nil)];
+//        [addBtn setTitleColor:[UIColor commonWhiteColor]];
+//        [addBtn.titleLabel setFont:[UIFont systemFontOfSize:14.0f]];
+//        [addBtn setBackgroundColor:[UIColor commonCellcolor]];
+//        [cell.contentView addSubview:addBtn];
+//        [addBtn setUserInteractionEnabled:NO];
+//        [addBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+//            make.edges.equalTo(cell.contentView);
+//        }];
+//        return cell;
+//    }
+//    else {
         MainStartHomeTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:[MainStartHomeTableViewCell at_identifier]];
         [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
         cell.delegate = self;
-        [cell setMainStartHomeTableViewCellInfo:self.currencyArray[indexPath.section]];
+    [cell setMainStartHomeTableViewCellInfo:self.currencyArray[indexPath.section] defaultPrice:_wallet.etherPrice];
         return cell;
-    }
-    return nil;
+//    }
+//    return nil;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    if (indexPath.section == self.currencyArray.count) {
-        //添加新资产
-        AddNewAssetsViewController *newAssetsVC = [[AddNewAssetsViewController alloc] initWithWallet:_wallet];
-        [self.navigationController pushViewController:newAssetsVC animated:YES];
-    }
-    else {
+//    if (indexPath.section == self.currencyArray.count) {
+//        //添加新资产
+//        AddNewAssetsViewController *newAssetsVC = [[AddNewAssetsViewController alloc] initWithWallet:_wallet];
+//        [self.navigationController pushViewController:newAssetsVC animated:YES];
+//    }
+//    else {
         //跳转到币种详情界面
         [_wallet setActiveToken:self.currencyArray[indexPath.section]];
         CurrencyDetailsViewController *detailVC = [[CurrencyDetailsViewController alloc] initWithWallet:_wallet];
         [self.navigationController pushViewController:detailVC animated:YES];
-    }
+//    }
 }
 
 #pragma mark - MGSwipeTableCellDelegate
@@ -279,13 +280,15 @@
     
     if (direction == MGSwipeDirectionLeftToRight) {
         expansionSettings.fillOnTrigger = NO;
-        expansionSettings.threshold = 2;
+        expansionSettings.threshold = 1;
         
-        return @[[MGSwipeButton buttonWithTitle:@"" icon:[UIImage imageNamed:@"receive"] backgroundColor:[UIColor commonGreenColor] padding:15 callback:^BOOL(MGSwipeTableCell * sender){
+        return @[[MGSwipeButton buttonWithTitle:NSLocalizedString(@"  收款", nil) icon:[UIImage imageNamed:@"receive"] backgroundColor:[UIColor commonGreenColor] callback:^BOOL(MGSwipeTableCell * sender){
             //从右往左滑动，跳转到收币界面
+            NSIndexPath *indexPath = [self.tableView indexPathForCell:sender];
+            [_wallet setActiveToken:self.currencyArray[indexPath.section]];
             ReceiveCoinsViewController *receiveCoinVC = [[ReceiveCoinsViewController alloc] initWithWallet:_wallet];
-            [self.navigationController.view setAnimationWithType:AnimationType_Fade duration:0.1f directionSubtype:Direction_Left];
-            [self.navigationController pushViewController:receiveCoinVC animated:YES];
+            [self.navigationController.view setAnimationWithType:AnimationType_MoveIn duration:0.1 directionSubtype:Direction_Left];
+            [self.navigationController pushViewController:receiveCoinVC animated:NO];
             return YES;
         }]];
     }
@@ -293,12 +296,13 @@
         expansionSettings.fillOnTrigger = NO;
         expansionSettings.threshold = 1;
 
-        return @[ [MGSwipeButton buttonWithTitle:@"" icon:[UIImage imageNamed:@"send"]  backgroundColor:[UIColor commonRedColor] callback:^BOOL(MGSwipeTableCell * sender){
+        return @[ [MGSwipeButton buttonWithTitle:NSLocalizedString(@"  转账", nil) icon:[UIImage imageNamed:@"send"]  backgroundColor:[UIColor commonOrangeTextColor] callback:^BOOL(MGSwipeTableCell * sender){
             //从左往右滑动，跳转到发送币界面
             NSIndexPath *indexPath = [self.tableView indexPathForCell:sender];
             [_wallet setActiveToken:self.currencyArray[indexPath.section]];
             SendCoinsViewController *sendCoinVC = [[SendCoinsViewController alloc] initWithWallet:_wallet];
-            [self.navigationController.view setAnimationWithType:AnimationType_Fade duration:0.1f directionSubtype:Direction_Right];
+            self.navigationController.view.backgroundColor = [UIColor blackColor];
+//            [self.navigationController.view setAnimationWithType:AnimationType_MoveIn duration:10.1f directionSubtype:Direction_Right];
             [self.navigationController pushViewController:sendCoinVC animated:YES];
             return YES;
         }]];
@@ -338,7 +342,7 @@
         _tableView.delegate = self;
         _tableView.dataSource = self;
         [_tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
-        [_tableView setBackgroundColor:[UIColor commonBackgroundColor]];
+        [_tableView setBackgroundColor:[UIColor mainThemeColor]];
         [_tableView registerClass:[MainStartHomeTableViewCell class] forCellReuseIdentifier:[MainStartHomeTableViewCell at_identifier]];
         [_tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:[UITableViewCell at_identifier]];
     }
@@ -348,7 +352,7 @@
 - (UIView *)topView {
     if (!_topView ) {
         _topView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, IMAGE_HEIGHT)];
-        _topView.backgroundColor = [UIColor commonBackgroundColor];
+        _topView.backgroundColor = [UIColor mainThemeColor];
     }
     return _topView;
 }
@@ -356,8 +360,8 @@
 - (UILabel *)assetsLb {
     if (!_assetsLb) {
         _assetsLb = [UILabel new];
-        _assetsLb.font = [UIFont systemFontOfSize:40.0f];
-        _assetsLb.textColor = [UIColor whiteColor];
+        _assetsLb.font = [UIFont systemFontOfSize:25.0f];
+        _assetsLb.textColor = [UIColor commonOrangeTextColor];
     }
     return _assetsLb;
 }
@@ -366,17 +370,17 @@
     if (!_totalLb) {
         _totalLb = [UILabel new];
         _totalLb.font = [UIFont systemFontOfSize:16.0f];
-        _totalLb.textColor = [UIColor whiteColor];
+        _totalLb.textColor = [UIColor commonWhiteColor];
     }
     return _totalLb;
 }
 
-- (UIView *)colorView {
-    if (!_colorView) {
-        _colorView = [UIView new];
-        _colorView.backgroundColor = [UIColor commonGreenColor];
-    }
-    return _colorView;
-}
+//- (UIView *)colorView {
+//    if (!_colorView) {
+//        _colorView = [UIView new];
+//        _colorView.backgroundColor = [UIColor commonGreenColor];
+//    }
+//    return _colorView;
+//}
 
 @end

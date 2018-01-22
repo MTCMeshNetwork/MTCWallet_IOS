@@ -72,7 +72,7 @@ NSAttributedString *getTimestamp1(NSTimeInterval timestamp) {
         
         [self.addressLb mas_makeConstraints:^(MASConstraintMaker *make) {
             make.top.left.equalTo(self.contentView).offset(15);
-            make.right.equalTo(self.contentView).offset(-ScreenWidth/3.5);
+            make.width.equalTo(@150);
         }];
         
         [self.tradeDateLb mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -102,22 +102,38 @@ NSAttributedString *getTimestamp1(NSTimeInterval timestamp) {
 - (void)noticeTransactionUpdated: (NSNotification*)note {
     TransactionInfo *transactionInfo = [note.userInfo objectForKey:@"transaction"];
     if (_transactionInfo && [transactionInfo.transactionHash isEqualToHash:_transactionInfo.transactionHash]) {
-        [self setAddress:_address transactionInfo:transactionInfo];
+        [self setWallet:_wallet transactionInfo:transactionInfo];
+    }
+    if (self.statusLb.tag) {
+        int confirmations = (int)(_wallet.activeAccountBlockNumber - _transactionInfo.blockNumber + 1);
+        if (confirmations < 12) {
+            //inProgress
+            self.statusLb.text = [NSString stringWithFormat:@"%@(%d/12)",NSLocalizedString(@"正在确认", nil),confirmations];
+        }
+        else {
+            //confirmed
+            self.statusLb.text = _transactionInfo.isError?NSLocalizedString(@"交易失败",nil):NSLocalizedString(@"交易成功",nil);
+            if (_transactionInfo.isError == 1) {
+                self.statusLb.textColor = [UIColor commonRedColor];
+            }else {
+                self.statusLb.textColor = [UIColor commonWhiteColor];
+            }
+        }
     }
 }
 
 
 #pragma mark ==== 交易记录
 
-- (void)setAddress:(Address *)address transactionInfo:(TransactionInfo *)transactionInfo {
-//    [self setAddress:address transactionInfo:transactionInfo animated:NO];
-}
-
-- (void)setAddress:(Address*)address blockNumber:(NSUInteger)blockNumber transactionInfo: (TransactionInfo *)transactionInfo {
-    
-    _address = address;
+- (void)setWallet:(Wallet *)wallet transactionInfo: (TransactionInfo *)transactionInfo {
+    //_wallet.activeAccountAddress token:_wallet.activeToken.address blockNumber:_wallet.activeAccountBlockNumber
+    _wallet = wallet;
     _transactionInfo = transactionInfo;
     
+    NSInteger blockNumber = wallet.activeAccountBlockNumber;
+    Address *tokenAddress = wallet.activeToken.address;
+    Address *accountAddress = wallet.activeAccountAddress;
+    self.statusLb.tag = 0;
     if (transactionInfo.blockNumber == -1) {
         //pending
         self.statusLb.text =NSLocalizedString(@"广播中",nil);
@@ -126,44 +142,56 @@ NSAttributedString *getTimestamp1(NSTimeInterval timestamp) {
         int confirmations = (int)(blockNumber - transactionInfo.blockNumber + 1);
         if (confirmations < 12) {
             //inProgress
-            self.statusLb.text = [NSString stringWithFormat:@"%@(%d/12)",NSLocalizedString(@"确认", nil),confirmations];
+            self.statusLb.text = [NSString stringWithFormat:@"%@(%d/12)",NSLocalizedString(@"正在确认", nil),confirmations];
+            self.statusLb.tag = 1;
         }
         else {
             //confirmed
-            self.statusLb.text = NSLocalizedString(@"成功",nil);
+            self.statusLb.text = _transactionInfo.isError?NSLocalizedString(@"交易失败",nil):NSLocalizedString(@"交易成功",nil);
+            if (_transactionInfo.isError == 1) {
+                self.statusLb.textColor = [UIColor commonRedColor];
+            }else {
+                self.statusLb.textColor = [UIColor commonWhiteColor];
+            }
         }
     }
     
     BigNumber *value = transactionInfo.value;
+    Address *toAddress = transactionInfo.toAddress;
     
-    if ([transactionInfo.toAddress isEqualToAddress:_address]) {
+    //代币合约列表
+    if (tokenAddress) {
+        //解析自定义data
+        toAddress = _transactionInfo.tokenTo;
+        value = _transactionInfo.tokenValue;
+    }
+    
+    if ([toAddress isEqualToAddress:accountAddress]) {
         //接收
-        if ([_transactionInfo.fromAddress isEqualToAddress:_address]) {
+        self.coinLb.textColor = [UIColor commonGreenColor];
+        if ([_transactionInfo.fromAddress isEqualToAddress:accountAddress]) {
             //self
             self.addressLb.text = @"self";
 //            self.statusLb.text = @"";
         } else {
             //Received
             self.addressLb.text = _transactionInfo.fromAddress.checksumAddress;
-            self.coinLb.textColor = [UIColor commonGreenColor];
         }
 
     } else {
-        //转出
+        //转出eth
+        self.coinLb.textColor = [UIColor commonRedColor];
         if (_transactionInfo.contractAddress) {
-            self.addressLb.text = _transactionInfo.contractAddress.checksumAddress;
+            self.addressLb.text =toAddress.checksumAddress?:_transactionInfo.contractAddress.checksumAddress;
 //            self.statusLb.text = @"Contract";
             value = [value mul:[BigNumber constantNegativeOne]];
-            self.coinLb.textColor = [UIColor commonRedColor];
-        } else if ([_transactionInfo.fromAddress isEqualToAddress:_address]) {
-            self.coinLb.textColor = [UIColor commonRedColor];
-            self.addressLb.text = _transactionInfo.toAddress.checksumAddress;
+        } else if ([_transactionInfo.fromAddress isEqualToAddress:accountAddress]) {
+            self.addressLb.text = toAddress.checksumAddress;
             value = [value mul:[BigNumber constantNegativeOne]];
 //            self.statusLb.text = @"send";
 
         } else {
-            self.addressLb.text = _transactionInfo.toAddress.checksumAddress;
-            self.coinLb.textColor = [UIColor commonBlueColor];
+            self.addressLb.text = toAddress.checksumAddress;
 //            self.statusLb.text = @"unknown";
         }
     }

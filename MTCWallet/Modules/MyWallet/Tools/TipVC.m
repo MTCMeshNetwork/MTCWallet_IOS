@@ -79,6 +79,8 @@
     UIView *contentView = [[UIView alloc] init];
     [contentView setBackgroundColor:[UIColor whiteColor]];
     [self.view addSubview:contentView];
+    contentView.layer.masksToBounds = YES;
+    contentView.layer.cornerRadius = 5.0f;
     [contentView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.equalTo(self.view).insets(UIEdgeInsetsMake(0, 30, 0, 30));
         make.centerY.equalTo(self.view);
@@ -118,35 +120,38 @@
     UIView *contentView = [[UIView alloc] init];
     [contentView setBackgroundColor:[UIColor whiteColor]];
     [self.view addSubview:contentView];
+    contentView.layer.masksToBounds = YES;
+    contentView.layer.cornerRadius = 5.0f;
     [contentView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.equalTo(self.view).insets(UIEdgeInsetsMake(0, 30, 0, 30));
         make.centerY.equalTo(self.view);
-        make.height.equalTo(@(140 + 2 * 60));
+        make.height.equalTo(@180);
     }];
     
     UILabel *titleLbl = [[UILabel alloc] init];
     titleLbl.text = NSLocalizedString(@"重要操作验证", nil);
-    titleLbl.textColor = [UIColor colorWithWhite:0x66/255. alpha:1];
+    titleLbl.textColor = [UIColor mainThemeColor];
     titleLbl.textAlignment = NSTextAlignmentCenter;
     [contentView addSubview:titleLbl];
     [titleLbl mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(contentView).offset(20);
         make.left.right.equalTo(contentView);
-        make.height.equalTo(@50);
     }];
     
     UIView *tfBG = [UIView new];
     [contentView addSubview:tfBG];
-    tfBG.layer.borderColor = [UIColor colorWithWhite:0xcc/255. alpha:1].CGColor;
+    tfBG.layer.borderColor = [UIColor mainThemeColor].CGColor;
     tfBG.layer.borderWidth = 1;
+    tfBG.layer.masksToBounds = YES;
+    tfBG.layer.cornerRadius = 5.0f;
     [tfBG mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.right.top.equalTo(titleLbl).insets(UIEdgeInsetsMake(80, 30, 0, 30));
-        make.height.equalTo(@50);
+        make.left.right.top.equalTo(titleLbl).insets(UIEdgeInsetsMake(40, 15, 0, 15));
+        make.height.equalTo(@45);
     }];
     
     UITextField *tf = [UITextField new];
     [contentView addSubview:tf];
-    tf.placeholder = NSLocalizedString(@"输入交易密码", nil);
+    tf.placeholder = NSLocalizedString(@"输入钱包密码", nil);
     tf.keyboardType = UIKeyboardTypeNamePhonePad;
     tf.secureTextEntry = YES;
     [tf addTarget:self action:@selector(txtValueChange:) forControlEvents:UIControlEventEditingChanged];
@@ -156,42 +161,44 @@
     
     BlockButton *button = [BlockButton buttonWithType:UIButtonTypeCustom];
     [button setTitle:NSLocalizedString(@"确认", nil) forState:UIControlStateNormal];
-    [button setTitleColor:[UIColor colorWithWhite:0x66/255. alpha:1]];
+    [button setTitleColor:[UIColor commonWhiteColor]];
     button.titleLabel.font = [UIFont systemFontOfSize:15];
     __weak TipVC *weakSelf = self;
     [button handleControlEvent:UIControlEventTouchUpInside withBlock:^{
         if (tf.text.length) {
             [weakSelf tipButtonClicked:button];
         }else {
-            showMessage(showTypeError, NSLocalizedString(@"请输入交易密码", nil));
+            showMessage(showTypeError, NSLocalizedString(@"请输入钱包密码", nil));
         }
     }];
 //    [button addTarget:self action:@selector(tipButtonClicked:)];
-    button.layer.borderColor = [UIColor colorWithWhite:0xcc/255. alpha:1].CGColor;
-    button.layer.borderWidth = 1;
+//    button.layer.borderColor = [UIColor colorWithWhite:0xcc/255. alpha:1].CGColor;
+//    button.layer.borderWidth = 1;
+    button.backgroundColor = [UIColor mainThemeColor];
     button.tag = 1;
     [contentView addSubview:button];
     [button mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(tf.mas_bottom).offset(40);
-        make.left.equalTo(contentView).offset(30);
-        make.width.equalTo(contentView).multipliedBy(0.5).offset(-35);
-        make.bottom.equalTo(contentView).offset(-30);
+        make.top.equalTo(tfBG.mas_bottom).offset(16);
+        make.left.equalTo(contentView);
+        make.width.equalTo(contentView).multipliedBy(0.5);
+        make.bottom.equalTo(contentView);
     }];
     
     button = [BlockButton buttonWithType:UIButtonTypeCustom];
     [button setTitle:NSLocalizedString(@"取消", nil) forState:UIControlStateNormal];
-    [button setTitleColor:[UIColor colorWithWhite:0x66/255. alpha:1]];
+    [button setTitleColor:[UIColor commonWhiteColor]];
     button.titleLabel.font = [UIFont systemFontOfSize:15];
     [button addTarget:self action:@selector(tipButtonClicked:)];
-    button.layer.borderColor = [UIColor colorWithWhite:0xcc/255. alpha:1].CGColor;
-    button.layer.borderWidth = 1;
+//    button.layer.borderColor = [UIColor colorWithWhite:0xcc/255. alpha:1].CGColor;
+//    button.layer.borderWidth = 1;
+    button.backgroundColor = [UIColor commonRedColor];
     button.tag = 0;
     [contentView addSubview:button];
     [button mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(tf.mas_bottom).offset(40);
-        make.right.equalTo(contentView).offset(-30);
-        make.width.equalTo(contentView).multipliedBy(0.5).offset(-35);
-        make.bottom.equalTo(contentView).offset(-30);
+        make.top.equalTo(tfBG.mas_bottom).offset(16);
+        make.right.equalTo(contentView);
+        make.width.equalTo(contentView).multipliedBy(0.5);
+        make.bottom.equalTo(contentView);
     }];
     
     return contentView;
@@ -201,10 +208,12 @@
     UIView *contentView = [[UIView alloc] init];
     [contentView setBackgroundColor:[UIColor whiteColor]];
     [self.view addSubview:contentView];
+    contentView.layer.masksToBounds = YES;
+    contentView.layer.cornerRadius = 5.0f;
     [contentView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.equalTo(self.view).insets(UIEdgeInsetsMake(0, 30, 0, 30));
         make.centerY.equalTo(self.view);
-        make.height.equalTo(@(140 + _buttons.count*60));
+        make.height.equalTo(@(110 + _buttons.count*55));
     }];
     
     UILabel *titleLbl = [[UILabel alloc] init];
@@ -214,7 +223,7 @@
     [contentView addSubview:titleLbl];
     [titleLbl mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.top.equalTo(contentView);
-        make.height.equalTo(@50);
+        make.height.equalTo(@55);
     }];
     
     UIView *line = [[UIView alloc] init];
@@ -234,15 +243,15 @@
     NSUInteger index = 0;
     for (NSString *option in _buttons) {
         BlockButton *button = [BlockButton buttonWithType:UIButtonTypeCustom];
-        [button setTitleColor:[UIColor colorWithWhite:0x66/255. alpha:1] forState:UIControlStateNormal];
+        [button setTitleColor:[UIColor mainThemeColor] forState:UIControlStateNormal];
         [button handleControlEvent:UIControlEventTouchUpInside withBlock:tapButton];
         [contentView addSubview:button];
         button.tag = ++index;
         [button setTitle:option forState:UIControlStateNormal];
         [button mas_makeConstraints:^(MASConstraintMaker *make) {
             make.left.right.equalTo(contentView);
-            make.height.equalTo(@59);
-            make.top.equalTo(titleLbl).offset(1+60*index);
+            make.height.equalTo(@54);
+            make.top.equalTo(titleLbl).offset(1+55*index);
         }];
         
         line = [[UIView alloc] init];
@@ -258,14 +267,15 @@
     BlockButton *button = [BlockButton buttonWithType:UIButtonTypeCustom];
     [button handleControlEvent:UIControlEventTouchUpInside withBlock:tapButton];
     [contentView addSubview:button];
-    [button setTitleColor:[UIColor colorWithWhite:0x66/255. alpha:1] forState:UIControlStateNormal];
+    [button setTitleColor:[UIColor commonWhiteColor] forState:UIControlStateNormal];
     [button setTitle:NSLocalizedString(@"取消", nil) forState:UIControlStateNormal];
-    button.layer.borderColor = [UIColor colorWithWhite:0xcc/255. alpha:1].CGColor;
-    button.layer.borderWidth = 1;
+//    button.layer.borderColor = [UIColor colorWithWhite:0xcc/255. alpha:1].CGColor;
+//    button.layer.borderWidth = 1;
+    button.backgroundColor = [UIColor mainThemeColor];
     [button mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.right.equalTo(contentView).insets(UIEdgeInsetsMake(0, 20, 0, 20));
-        make.height.equalTo(@44);
-        make.bottom.equalTo(contentView).offset(-22);
+        make.left.right.bottom.equalTo(contentView).insets(UIEdgeInsetsMake(0, 0, 0, 0));
+        make.height.equalTo(@55);
+//        make.bottom.equalTo(contentView).offset(-22);
     }];
     return contentView;
 }

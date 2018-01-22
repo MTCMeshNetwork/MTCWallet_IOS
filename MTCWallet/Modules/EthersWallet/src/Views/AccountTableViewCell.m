@@ -95,6 +95,7 @@ const CGFloat AccountTableViewCellHeight = 60.0f;
         _isSelectedView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleRightMargin;
         [self.contentView addSubview:_isSelectedView];
         
+        
         // The round empty circle to fill with the selected checkmark
 //        UIView *unselectedView = [[UIView alloc] initWithFrame:_isSelectedView.bounds];
 //        unselectedView.backgroundColor = [UIColor whiteColor];
@@ -119,6 +120,7 @@ const CGFloat AccountTableViewCellHeight = 60.0f;
         // The balance
         _balanceLabel = [[UILabel alloc] initWithFrame:CGRectMake(frame.size.width - 80.0f - 9.0f, 0.0f,80.0f, frame.size.height)];// fontSize:15.0f color:BalanceLabelColorStatus alignment:BalanceLabelAlignmentAlignDecimal];
         _balanceLabel.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleLeftMargin;
+        _balanceLabel.textColor = [UIColor commonlightGrayTextColor];
 //        _balanceLabel.backgroundColor = [UIColor redColor];
         [self.contentView addSubview:_balanceLabel];
         
@@ -128,7 +130,7 @@ const CGFloat AccountTableViewCellHeight = 60.0f;
         _nicknameTextField.autoresizingMask = UIViewAutoresizingFlexibleWidth;
         _nicknameTextField.autocapitalizationType = UITextAutocapitalizationTypeWords;
         _nicknameTextField.delegate = self;
-        _nicknameTextField.font = [UIFont fontWithName:FONT_BOLD size:24.0f];
+        _nicknameTextField.font = [UIFont fontWithName:FONT_BOLD size:15.0f];
         _nicknameTextField.textColor = [UIColor commonDarkGrayTextColor];
         _nicknameTextField.userInteractionEnabled = NO;
         [self.contentView addSubview:_nicknameTextField];
@@ -236,7 +238,6 @@ const CGFloat AccountTableViewCellHeight = 60.0f;
         if ([obj isKindOfClass:[NSArray class]]) {
             _balanceLabel.text = [_wallet assetsForTokens:[note.userInfo objectForKey:WalletNotificationBalanceKey]];
         }
-        NSLog(@"%d  %@",_accountIndex,_balanceLabel.text);
     }
 }
 

@@ -238,10 +238,10 @@
 - (void)loadView {
     [super loadView];
     
-    self.view.backgroundColor = [UIColor colorWithWhite:0 alpha:0.3];
+    self.view.backgroundColor = [UIColor colorWithWhite:0 alpha:0.8];
     
     _backGroundView = [[UIView alloc] init];
-    [_backGroundView setBackgroundColor:[UIColor whiteColor]];
+    [_backGroundView setBackgroundColor:[UIColor commonCellcolor]];
     [self.view addSubview:_backGroundView];
     [_backGroundView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.edges.equalTo(self.view).insets(UIEdgeInsetsMake(0, 300, 0, -200));
@@ -251,34 +251,36 @@
     [_backGroundView addSubview:titleView];
     [titleView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.top.right.equalTo(_backGroundView);
-        make.height.equalTo(@100);
+        make.height.mas_equalTo(100 + STATUS_BAR_HEIGHT);
     }];
     
     UILabel *lbl = [[UILabel alloc] init];
-    lbl.textColor = [UIColor darkGrayColor];
+    lbl.textColor = [UIColor whiteColor];
     lbl.text = NSLocalizedString(@"钱包切换", nil);
     [titleView addSubview:lbl];
     [lbl mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(_backGroundView).offset(30);
-        make.top.equalTo(_backGroundView).offset(20);
+        make.centerX.equalTo(_backGroundView);
+        make.top.equalTo(_backGroundView).offset(20+STATUS_BAR_HEIGHT);
     }];
     
     __weak typeof(self) weakSelf = self;
     BlockButton *editBtn = [BlockButton buttonWithType:UIButtonTypeCustom];
-    [editBtn setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
-    [editBtn setTitle:NSLocalizedString(@"编辑", nil) forState:UIControlStateNormal];
-    [editBtn setTitle:NSLocalizedString(@"完成", nil) forState:UIControlStateSelected];
+    //[editBtn setTitle:NSLocalizedString(@"编辑", nil) forState:UIControlStateNormal];
+    //[editBtn setTitle:NSLocalizedString(@"完成", nil) forState:UIControlStateSelected];
+    [editBtn setImage:[UIImage imageNamed:@"accountsetting"] forState:UIControlStateNormal];
+    [editBtn setImage:[UIImage imageNamed:@"accountdone"] forState:UIControlStateSelected];
     [editBtn addTarget:self action:@selector(tapReorder:)];
-    [editBtn setTitleColor:[UIColor commonDarkGrayTextColor] forState:UIControlStateNormal];
+    [editBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [titleView addSubview:editBtn];
     [editBtn mas_makeConstraints:^(MASConstraintMaker *make) {
         make.right.equalTo(_backGroundView).offset(-30);
         make.centerY.equalTo(lbl);
+        make.width.height.equalTo(@30);
     }];
     
     
     UIView *line = [[UIView alloc] init];
-    line.backgroundColor = [UIColor lightGrayColor];
+    line.backgroundColor = [UIColor clearColor];
     [titleView addSubview:line];
     [line mas_makeConstraints:^(MASConstraintMaker *make) {
         make.right.left.equalTo(_backGroundView);
@@ -289,7 +291,7 @@
     BlockButton *button = [BlockButton buttonWithType:UIButtonTypeCustom];
     button.titleLabel.font = [UIFont fontWithName:@"iconfont" size:15];
     [button setTitle:[NSString stringWithFormat:@"%@ %@", ICON_FONT_WALLET,NSLocalizedString(@"新建钱包", nil)] forState:UIControlStateNormal];
-    [button setTitleColor:[UIColor commonDarkGrayTextColor] forState:UIControlStateNormal];
+    [button setTitleColor:[UIColor commonlightGrayTextColor] forState:UIControlStateNormal];
     [button handleControlEvent:UIControlEventTouchUpInside withBlock:^{
         [weakSelf tapAdd];
     }];
@@ -303,7 +305,7 @@
     
     BlockButton *importbutton = [BlockButton buttonWithType:UIButtonTypeCustom];
     importbutton.titleLabel.font = [UIFont fontWithName:@"iconfont" size:15];
-    [importbutton setTitleColor:[UIColor commonDarkGrayTextColor] forState:UIControlStateNormal];
+    [importbutton setTitleColor:[UIColor commonlightGrayTextColor] forState:UIControlStateNormal];
     [importbutton setTitle:[NSString stringWithFormat:@"%@ %@", ICON_FONT_IMPORT,NSLocalizedString(@"导入钱包", nil)] forState:UIControlStateNormal];
     [importbutton handleControlEvent:UIControlEventTouchUpInside withBlock:^{
         [weakSelf tapImport];
@@ -317,7 +319,7 @@
     }];
     
     line = [[UIView alloc] init];
-    line.backgroundColor = [UIColor lightGrayColor];
+    line.backgroundColor = [UIColor clearColor];
     [titleView addSubview:line];
     [line mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.equalTo(_backGroundView);
@@ -327,15 +329,16 @@
     }];
     
     line = [[UIView alloc] init];
-    line.backgroundColor = [UIColor lightGrayColor];
+    line.backgroundColor = [UIColor commonGreenColor];
     [titleView addSubview:line];
     [line mas_makeConstraints:^(MASConstraintMaker *make) {
         make.right.left.equalTo(_backGroundView);
         make.height.equalTo(@1);
-        make.bottom.equalTo(importbutton.mas_bottom);
+        make.bottom.equalTo(_backGroundView).offset(-1);
     }];
     
     _unitView = [SwitchView new];
+    _unitView.backgroundColor = [UIColor commonCellcolor];
     [_backGroundView addSubview:_unitView];
     
     NSArray *unitArray = @[NSLocalizedString(@"美元",nil),NSLocalizedString(@"人民币",nil)];
@@ -344,6 +347,7 @@
     [_unitView setSwitchViewTitle:NSLocalizedString(@"货币单位", nil) detail:isDollar?NSLocalizedString(@"美元", nil):NSLocalizedString(@"人民币", nil)];
     
     _languageView = [SwitchView new];
+    _languageView.backgroundColor = [UIColor commonCellcolor];
     [_backGroundView addSubview:_languageView];
     NSString *str = [[NSUserDefaults standardUserDefaults] valueForKey:@"myLanguage"];
     if (str.length) {
@@ -353,8 +357,9 @@
     }
     
     [_languageView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.bottom.right.equalTo(_backGroundView);
+        make.left.right.equalTo(_backGroundView);
         make.height.mas_equalTo(@45);
+        make.bottom.mas_equalTo(-HOME_INDICATOR_HEIGHT);
     }];
     
     [_unitView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -368,10 +373,11 @@
     _tableView.delegate = self;
     _tableView.emptyDataSetSource = self;
     _tableView.emptyDataSetDelegate = self;
+    _tableView.separatorColor = [UIColor commonCellcolor];
     _tableView.rowHeight = AccountTableViewCellHeight;
 //    _tableView.scrollIndicatorInsets = _tableView.contentInset;
     _tableView.tableFooterView = [[UIView alloc]initWithFrame:CGRectZero];
-    _tableView.backgroundColor = [UIColor commonLightGrayTextColor];
+    _tableView.backgroundColor = [UIColor commonAccountsCellcolor];
     [_backGroundView addSubview:_tableView];
     [_tableView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.equalTo(titleView);
@@ -522,6 +528,10 @@
 
 }
 
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
+    cell.backgroundColor = [UIColor commonAccountsCellcolor];
+    cell.contentView.backgroundColor = [UIColor commonAccountsCellcolor];
+}
 
 - (NSArray<UITableViewRowAction*>*)tableView:(UITableView *)tableView editActionsForRowAtIndexPath:(NSIndexPath *)indexPath {
 
@@ -530,27 +540,12 @@
 //        [_wallet manageAccountAtIndex:indexPath.row callback:nil];
 //        [_wallet manageAccount:((AccountTableViewCell*)[tableView; cellForRowAtIndexPath:indexPath]).address
 //                      callback:nil];
-         [[TipVC showTipType:ShowTipTypePassword inController:self] setOnCompletion:^(NSString *password,NSInteger idx) {
-             if(password) {
-                 __weak typeof(self) weakSelf = self;
-                 { showMessage(showTypeStatus, NSLocalizedString(@"密码验证中...", nil));}
-                 [_wallet verifyTransactionPassword:password index:indexPath.row callBack:^(BOOL unlock) {
-                     if (unlock) {
-                         showMessage(showTypeNone, nil);
-                         [weakSelf showPromptView:indexPath.row password:password];
-                     } else {
-                         showMessage(showTypeError, NSLocalizedString(@"交易密码错误", nil));
-                     }
-                 }];
-             }
-        }];
-        
-
+        [self showPromptView:indexPath.row];
 
 //        [tableView setEditing:NO animated:YES];
     };
 
-    UITableViewRowAction *rowAction = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleDefault title:NSLocalizedString(@"删除", nil) handler:handleAction];
+    UITableViewRowAction *rowAction = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleDefault title:NSLocalizedString(@"管理", nil) handler:handleAction];
 //    rowAction.backgroundColor = [UIColor colorWithHex:ColorHexToolbarIcon];
     return @[rowAction];
 }
@@ -570,26 +565,42 @@
 }
 
 //提示操作
-- (void)showPromptView:(NSInteger)walletIndex password:(NSString *) password {
+- (void)showPromptView:(NSInteger)walletIndex {
     
     PopupPromptView *promptView = [[PopupPromptView alloc] init];
     [promptView showWithAnimation:YES];
     
     __weak typeof(self) weakSelf = self;
     [promptView setBlock:^(NSInteger index) {
-        if (index == 1) {
-            //备份/导出钱包
-            [_wallet exportAccountAtIndex:walletIndex inController:weakSelf password:password callback:^(ExportWalletVC *vc) {
-                [weakSelf.navigationController pushViewController:vc animated:YES];
-            }];
-        }
-        else if (index == 2) {
-            //确认删除
-            [weakSelf.wallet removeAccountAtIndex:walletIndex];
-            if ([_delegate respondsToSelector:@selector(accountsViewController:removeAccountIndex:)]) {
-                [_delegate accountsViewController:self removeAccountIndex:walletIndex];
+        [[TipVC showTipType:ShowTipTypePassword inController:self] setOnCompletion:^(NSString *password,NSInteger idx) {
+            if(idx == 1) {
+                { showMessage(showTypeStatus, NSLocalizedString(@"密码验证中...", nil));}
+                [_wallet verifyTransactionPassword:password index:walletIndex callBack:^(BOOL unlock) {
+                    if (unlock) {
+                        showMessage(showTypeNone, nil);
+                        if (index == 1) {
+                            //备份/导出钱包
+                            [_wallet exportAccountAtIndex:walletIndex inController:weakSelf password:password callback:^(ExportWalletVC *vc) {
+                                if (vc) {
+                                    [weakSelf.navigationController pushViewController:vc animated:YES];
+                                } else {
+                                    showMessage(showTypeError, NSLocalizedString(@"导出失败", nil));
+                                }
+                            }];
+                        }
+                        else if (index == 2) {
+                            //确认删除
+                            [weakSelf.wallet removeAccountAtIndex:walletIndex];
+                            if ([_delegate respondsToSelector:@selector(accountsViewController:removeAccountIndex:)]) {
+                                [_delegate accountsViewController:self removeAccountIndex:walletIndex];
+                            }
+                        }
+                    } else {
+                        showMessage(showTypeError, NSLocalizedString(@"钱包密码错误", nil));
+                    }
+                }];
             }
-        }
+        }];
     }];
 }
 
@@ -606,11 +617,11 @@
 }
 
 - (NSAttributedString *)titleForEmptyDataSet:(UIScrollView *)scrollView {
-    return [[NSAttributedString alloc] initWithString:NSLocalizedString(@"您还没有钱包哦！", nil) attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:14],NSForegroundColorAttributeName:[UIColor colorWithHexString:@"666666"]}];
+    return [[NSAttributedString alloc] initWithString:NSLocalizedString(@"您还没有钱包哦！", nil) attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:14],NSForegroundColorAttributeName:[UIColor commonOrangeTextColor]}];
 }
 
 - (NSAttributedString *)buttonTitleForEmptyDataSet:(UIScrollView *)scrollView forState:(UIControlState)state {
-    return [[NSAttributedString alloc] initWithString:NSLocalizedString(@"新建钱包", nil) attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16],NSForegroundColorAttributeName:[UIColor commonBackgroundColor]}];
+    return [[NSAttributedString alloc] initWithString:NSLocalizedString(@"新建钱包", nil) attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16],NSForegroundColorAttributeName:[UIColor commonDarkGrayTextColor]}];
 }
 
 - (void)emptyDataSet:(UIScrollView *)scrollView didTapButton:(UIButton *)button {

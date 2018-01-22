@@ -43,37 +43,45 @@
     return self;
 }
 
-- (void)setAddress:(Address*)address blockNumber:(NSUInteger)blockNumber transactionInfo: (TransactionInfo *)transactionInfo {
+- (void)setAddress:(Address*)address token:(Address *)tokenAddress blockNumber:(NSUInteger)blockNumber transactionInfo: (TransactionInfo *)transactionInfo {
 
     [self.coinLb setTextColor:[UIColor commonGreenColor]];
     [self.coinLb setAttributedText:[NSAttributedString getAttributWithString:@"0.0 ETH" UnChangePart:@"0.0 " changePart:@"ETH" changeColor:nil changeFont:[UIFont systemFontOfSize:13.0f]]];
     
     
-    [self.promptLb setText:NSLocalizedString(@"转账成功",nil)];
+    [self.promptLb setText:NSLocalizedString(@"交易成功",nil)];
     
     if (transactionInfo.blockNumber == -1) {
         //pending
-        self.promptLb.text = @"广播中";
+        self.promptLb.text = NSLocalizedString(@"广播中",nil);
     }
     else {
         int confirmations = (int)(blockNumber - transactionInfo.blockNumber + 1);
         if (confirmations < 12) {
             //inProgress
-            self.promptLb.text = @"交易中";
+            self.promptLb.text = NSLocalizedString(@"交易中",nil);
         }
         else {
             //confirmed
-            self.promptLb.text = @"成功";
+            self.promptLb.text = transactionInfo.isError?NSLocalizedString(@"交易失败",nil):NSLocalizedString(@"交易成功",nil);
         }
     }
     
     BigNumber *value = transactionInfo.value;
-    if (_transactionInfo.contractAddress) {
-        value = [value mul:[BigNumber constantNegativeOne]];
-    }
-    else if ([_transactionInfo.fromAddress isEqualToAddress:_address]) {
-        self.coinLb.textColor = [UIColor commonRedColor];
-        value = [value mul:[BigNumber constantNegativeOne]];
+    if (tokenAddress) {
+        value = transactionInfo.tokenValue;
+        if ([transactionInfo.fromAddress isEqualToAddress:address]) {
+            self.coinLb.textColor = [UIColor commonRedColor];
+            value = [value mul:[BigNumber constantNegativeOne]];
+        }
+    }else {
+        if (transactionInfo.contractAddress) {
+            value = [value mul:[BigNumber constantNegativeOne]];
+        }
+        else if ([transactionInfo.fromAddress isEqualToAddress:address]) {
+            self.coinLb.textColor = [UIColor commonRedColor];
+            value = [value mul:[BigNumber constantNegativeOne]];
+        }
     }
     
     [self setBalance:value];

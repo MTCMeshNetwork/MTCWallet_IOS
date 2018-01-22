@@ -24,17 +24,17 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.title = NSLocalizedString(@"新建钱包", nil);
-    self.tableView.backgroundColor = COLOR_BACKGROUND;
+    self.tableView.backgroundColor = [UIColor mainThemeColor];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.results = [NSMutableDictionary dictionary];
 }
 
 - (void)loadView {
     [super loadView];
-    
-    [self wr_setNavBarTintColor:[UIColor whiteColor]];
-    [self wr_setNavBarTitleColor:[UIColor whiteColor]];
-    [self wr_setNavBarBarTintColor:COLOR_GREEN];
+
+    [self wr_setNavBarBarTintColor:[UIColor commonBackgroundColor]];
+    [self wr_setNavBarBackgroundAlpha:1];
+    [self wr_setNavBarTitleColor:[[UIColor commonWhiteColor] colorWithAlphaComponent:1]];
     [self wr_setNavBarShadowImageHidden:YES];
     self.navigationController.navigationBarHidden = NO;
     
@@ -43,13 +43,13 @@
     lbl.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     
     NSString *redStr = NSLocalizedString(@"一旦丢失将无法找回!", nil);
-    NSString *message = [NSString stringWithFormat:@"%@%@",NSLocalizedString(@"请妥善保管交易密码，", nil),redStr];
+    NSString *message = [NSString stringWithFormat:@"%@%@",NSLocalizedString(@"请妥善保管钱包密码，", nil),redStr];
     NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
     paragraphStyle.alignment = NSTextAlignmentCenter;
-    NSDictionary * attributes = @{NSFontAttributeName : [UIFont systemFontOfSize:13.0],NSForegroundColorAttributeName:[UIColor lightGrayColor], NSParagraphStyleAttributeName : paragraphStyle};
+    NSDictionary * attributes = @{NSFontAttributeName : [UIFont systemFontOfSize:15.0],NSForegroundColorAttributeName:[UIColor lightGrayColor], NSParagraphStyleAttributeName : paragraphStyle};
     NSMutableAttributedString *attribtedMessageStr = [[NSMutableAttributedString alloc] initWithString:message];
     [attribtedMessageStr addAttributes:attributes range:NSMakeRange(0, message.length)];
-    [attribtedMessageStr addAttribute:NSForegroundColorAttributeName value:[UIColor redColor] range:NSMakeRange(message.length-redStr.length, redStr.length)];
+    [attribtedMessageStr addAttribute:NSForegroundColorAttributeName value:[UIColor commonOrangeTextColor] range:NSMakeRange(message.length-redStr.length, redStr.length)];
     lbl.attributedText = attribtedMessageStr;
     [bottomView addSubview:lbl];
     
@@ -63,7 +63,7 @@
             return ;
         }
         if ([weakSelf.results[@(1)] length] < 8) {
-            showMessage(showTypeError,NSLocalizedString(@"请设置一个不小于8位的交易密码", nil));
+            showMessage(showTypeError,NSLocalizedString(@"请设置一个不小于8位的钱包密码", nil));
             return ;
         }
         if(![weakSelf.results[@(2)] isEqualToString:self.results[@(1)]]) {
@@ -73,7 +73,7 @@
         weakSelf.onReturn(weakSelf,weakSelf.results[@(0)],weakSelf.results[@(1)],weakSelf.results[@(3)]);
     }];
     [button setTitle:NSLocalizedString(@"确认新建", nil) forState:UIControlStateNormal];
-    [button setBackgroundColor:COLOR_GREEN];
+    [button setBackgroundColor:[UIColor commonOrangeTextColor]];
     button.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     button.layer.cornerRadius = 5;
     [bottomView addSubview:button];
@@ -95,7 +95,7 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return indexPath.row%2?50:5;
+    return indexPath.row%2?60:5;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -119,7 +119,7 @@
         NSInteger idx = indexPath.row/2;
         UILabel *colorLbl = [cell.contentView viewWithTag:100];
         if (!colorLbl) {
-            colorLbl = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 80, 50)];
+            colorLbl = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 80, 60)];
             colorLbl.tag = 100;
             colorLbl.textColor = [UIColor whiteColor];
             colorLbl.textAlignment = NSTextAlignmentCenter;
@@ -127,20 +127,24 @@
         }
         cell.contentView.tag = idx;
         colorLbl.text = @[NSLocalizedString(@"名称", nil),NSLocalizedString(@"密码", nil),NSLocalizedString(@"重复", nil),NSLocalizedString(@"提示", nil)][idx];
-        colorLbl.backgroundColor = @[COLOR_BLUE,COLOR_PINK,COLOR_PINK,COLOR_GREEN][idx];
+//        colorLbl.backgroundColor = @[COLOR_BLUE,COLOR_PINK,COLOR_PINK,COLOR_GREEN][idx];
+        colorLbl.backgroundColor = @[[UIColor commonGreenColor],[UIColor commonOrangeTextColor],[UIColor commonOrangeTextColor],[UIColor commonGreenColor]][idx];
         UITextField *tf = [cell.contentView viewWithTag:101];
         if (!tf) {
-            tf = [[UITextField alloc] initWithFrame:CGRectMake(100, 0, 320-120, 50)];
+            tf = [[UITextField alloc] initWithFrame:CGRectMake(100, 0, 320-120, 60)];
             tf.autoresizingMask = UIViewAutoresizingFlexibleWidth;
             tf.textColor = [UIColor whiteColor];
             tf.tag = 101;
             tf.placeholder = @" ";
             tf.delegate = self;
-            [tf setValue:[UIColor lightGrayColor] forKeyPath:@"_placeholderLabel.textColor"];
+            [tf setValue:[UIColor commonlightGrayTextColor] forKeyPath:@"_placeholderLabel.textColor"];
             [cell.contentView addSubview:tf];
         }
-        tf.placeholder = @[NSLocalizedString(@"输入钱包名称", nil),NSLocalizedString(@"输入不小于8位的交易密码", nil),NSLocalizedString(@"重复钱包交易密码", nil),NSLocalizedString(@"密码提示（可不填）", nil)][idx];
+        tf.placeholder = @[NSLocalizedString(@"输入钱包名称", nil),NSLocalizedString(@"输入不小于8位的钱包密码", nil),NSLocalizedString(@"重复钱包钱包密码", nil),NSLocalizedString(@"密码提示（可不填）", nil)][idx];
         tf.text = self.results[@(idx)]?:@"";
+        if (idx == 1 || idx == 2) {
+            tf.secureTextEntry = YES;
+        }
     }
     return cell;
 }

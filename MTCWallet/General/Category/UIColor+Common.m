@@ -10,37 +10,38 @@
 
 @implementation UIColor (Common)
 
-+ (UIColor*) mainThemeColor {
-    return [UIColor colorWithHexString:@"7BCCC8"];
++ (UIColor *)mainThemeColor {
+    return [UIColor colorWithHexString:@"272a36"];
 }
 
 //背景颜色
 + (UIColor *)commonBackgroundColor {
-    return [UIColor colorWithHexString:@"292c36"];
+    return [UIColor colorWithHexString:@"272a36"];
 }
 
 //cell颜色
 + (UIColor *)commonCellcolor {
-    return [UIColor colorWithHexString:@"3f4046"];
+    //    return [UIColor colorWithHexString:@"52555e"];
+    return [UIColor colorWithHexString:@"30333d"];
 }
 
-// 乳白色
+// 白色
 + (UIColor *)commonWhiteColor {
-    return [UIColor colorWithHexString:@"c6c4c4"];
+    return [UIColor colorWithHexString:@"ffffff"];
 }
 
 + (UIColor *)commonGreenColor {
-    return [UIColor colorWithHexString:@"21c95c"];
+    return [UIColor colorWithHexString:@"2ea84b"];
 }
 
 // 粉红
 + (UIColor *)commonPinkColor {
-    return [UIColor colorWithHexString:@"b6326f"];
+    return [UIColor colorWithHexString:@"dd3155"];
 }
 
 //自定义红色
 + (UIColor *)commonRedColor {
-    return [UIColor colorWithHexString:@"dd3155"];
+    return [UIColor colorWithHexString:@"c03838"];
 }
 
 //自定义蓝色
@@ -67,9 +68,19 @@
 + (UIColor *)commonDarkGrayTextColor {
     return [UIColor colorWithHexString:@"666666"];
 }
+
+//浅灰
++ (UIColor *)commonlightGrayTextColor {
+    return [UIColor colorWithHexString:@"999999"];
+}
+
 //橘黄
 + (UIColor *)commonOrangeTextColor {
-    return [UIColor colorWithHexString:@"ed6f2d"];
+    return [UIColor colorWithHexString:@"ff6000"];
+}
+
++ (UIColor *)commonAccountsCellcolor {
+    return [UIColor colorWithHexString:@"1f1f22"];
 }
 
 @end

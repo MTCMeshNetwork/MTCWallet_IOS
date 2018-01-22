@@ -75,7 +75,7 @@
 - (void)startPolling {
     if (self.polling) { return; }
     [super startPolling];
-    _poller = [NSTimer scheduledTimerWithTimeInterval:4.0f target:self selector:@selector(doPoll) userInfo:nil repeats:YES];
+    _poller = [NSTimer scheduledTimerWithTimeInterval:14.0f target:self selector:@selector(doPoll) userInfo:nil repeats:YES];
 }
 
 - (void)stopPolling {
@@ -239,90 +239,9 @@
                   fetchType:ApiProviderFetchTypeHash];
 }
 
-//custom
-- (ArrayPromise*)getTransactions: (Address*)address startBlockTag: (BlockTag)blockTag {
-    NSObject* (^processTransactions)(NSDictionary*) = ^NSObject*(NSDictionary *response) {
-        NSMutableArray *result = [NSMutableArray array];
-        
-        NSArray *infos = (NSArray*)[[response objectForKey:@"obj"] objectForKey:@"list"];
-        if (![infos isKindOfClass:[NSArray class]]) {
-            return [NSError errorWithDomain:ProviderErrorDomain code:ProviderErrorBadResponse userInfo:@{}];
-        }
-        
-        for (NSDictionary *info in infos) {
-            if (![info isKindOfClass:[NSDictionary class]]) {
-                return [NSError errorWithDomain:ProviderErrorDomain code:ProviderErrorBadResponse userInfo:@{}];
-            }
-            
-            NSMutableDictionary *mutableInfo = [info mutableCopy];
-            
-            // Massage some values that have their key names differ from ours
-            {
-                NSObject *gasLimit = [info objectForKey:@"gas"];
-                if (gasLimit) {
-                    [mutableInfo setObject:gasLimit forKey:@"gasLimit"];
-                }
-                
-                NSString *timestamp = [NSString stringWithFormat:@"%@",[info objectForKey:@"time"]];
-                if (timestamp.length) {
-                    [mutableInfo setObject:(timestamp.length>12)?[timestamp substringToIndex:timestamp.length-3]:timestamp forKey:@"timestamp"];
-                }
-                NSObject *tokenCounts = [info objectForKey:@"tokenCounts"];
-                if (tokenCounts) {
-                    [mutableInfo setObject:tokenCounts forKey:@"value"];
-                }
-                
-                NSObject *data = [info objectForKey:@"input"];
-                if (data) {
-                    [mutableInfo setObject:data forKey:@"data"];
-                }
-            }
-            
-            TransactionInfo *transactionInfo = [TransactionInfo transactionInfoFromDictionary:mutableInfo];
-            if (!transactionInfo) {
-                return [NSError errorWithDomain:ProviderErrorDomain code:ProviderErrorBadResponse userInfo:@{}];
-            }
-            
-            [result addObject:transactionInfo];
-        }
-        
-        return result;
-    };
-//    NSString *url = [NSString stringWithFormat:@"http://192.168.1.84:8081/tx/t2?i=1&c=100&a=%@",address];
-    NSString *url = [NSString stringWithFormat:@"https://wallet.mtc.io/rpc/tl?i=1&c=100&a=%@",address];
-    
-    return [self promiseFetchJSON:[NSURL URLWithString:url]
-                             body:nil
-                        fetchType:ApiProviderFetchTypeArray
-                          process:processTransactions];
+- (ArrayPromise *)getTokenBalance:(Address *)address {
+    return [ArrayPromise rejected:[NSError errorWithDomain:ProviderErrorDomain code:ProviderErrorInvalidParameters userInfo:@{}]];
 }
-
-- (ArrayPromise *)getTokenBalance:(NSString *)address {
-    NSObject *(^processTokens)(NSDictionary *) = ^NSObject*(NSDictionary *response) {
-//        NSLog(@"%@获取余额：%@",address,response);
-        if ([[response valueForKey:@"code"] integerValue] != 200) {
-            return [NSError errorWithDomain:ProviderErrorDomain code:ProviderErrorBadResponse userInfo:response];
-        }
-        NSMutableArray *result = [NSMutableArray array];
-        NSArray *tokens = [response valueForKey:@"obj"];
-        for (NSDictionary *info in tokens) {
-            Erc20Token *token = [Erc20Token tokenFromDictionary:info];
-            if (!token) {
-                return [NSError errorWithDomain:ProviderErrorDomain code:ProviderErrorBadResponse userInfo:@{}];
-            }
-            [result addObject:token];
-        }
-        return result;
-    };
-//    NSString *url = [NSString stringWithFormat:@"http://192.168.1.84:8081/tx/t6?address=%@",address];
-    NSString *url = [NSString stringWithFormat:@"https://wallet.mtc.io/rpc/cl?address=%@",address];
-    return [self promiseFetchJSON:[NSURL URLWithString:url]
-                         body:nil
-                    fetchType:ApiProviderFetchTypeArray
-                      process:processTokens];
-}
-
-
 
 #pragma mark - NSObject
 

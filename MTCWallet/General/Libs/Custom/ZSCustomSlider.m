@@ -25,8 +25,8 @@
 }
 
 -(void)loadGradientLayers{
-    self.colorArray = @[(id)[[UIColor commonGreenColor] CGColor],
-                        (id)[[UIColor commonRedColor] CGColor],
+    self.colorArray = @[(id)[[UIColor greenColor] CGColor],
+                        (id)[[UIColor redColor] CGColor],
                         ];
     self.colorLocationArray = @[@0.3, @0.7];
     [self.gradientLayer removeFromSuperlayer];

@@ -117,8 +117,6 @@ NSString *getBlockTag(BlockTag blockTag);
 - (BigNumberPromise*)getBalance: (Address*)address blockTag: (BlockTag)blockTag;
 
 - (ArrayPromise *)getTokenBalance:(Address *)address;
-- (BigNumberPromise*)getToken:(NSString *)token balance: (Address*)address;
-//- (FloatPromise*)getTokenPrice:(NSString *)token;
 
 - (IntegerPromise*)getTransactionCount: (Address*)address;
 - (IntegerPromise*)getTransactionCount: (Address*)address blockTag: (BlockTag)blockTag;
@@ -131,7 +129,6 @@ NSString *getBlockTag(BlockTag blockTag);
 - (DataPromise*)call: (Transaction*)transaction;
 - (BigNumberPromise*)estimateGas: (Transaction*)transaction;
 - (HashPromise*)sendTransaction: (NSData*)signedTransaction;
-- (HashPromise*)sendTokenTransaction:(Transaction *)transaction;
 
 - (BlockInfoPromise*)getBlockByBlockHash: (Hash*)blockHash;
 - (BlockInfoPromise*)getBlockByBlockTag: (BlockTag)blockTag;

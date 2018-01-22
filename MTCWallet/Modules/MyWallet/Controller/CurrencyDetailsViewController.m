@@ -18,7 +18,7 @@
 #import "ExportWalletVC.h"
 #import "TipVC.h"
 
-#define IMAGE_HEIGHT 240
+#define IMAGE_HEIGHT 239 - 44 + STATUS_BAR_HEIGHT
 #define NAVBAR_COLORCHANGE_POINT (IMAGE_HEIGHT - NAVIGATION_BAR_HEIGHT * 2)
 
 #define CONFIRMED_COUNT        12
@@ -27,7 +27,7 @@
 @property (nonatomic, strong) NSMutableArray <TransactionInfo*> *sections;
 @property (nonatomic, strong) UITableView *tableView;
 @property (nonatomic, strong) UIView *topView;
-@property (nonatomic, strong) UILabel *currencyLb;
+@property (nonatomic, strong) UILabel *addressLb;
 //@property (nonatomic, strong) UILabel *coinCountLb;
 @property (nonatomic, strong) UILabel *assetsLb;
 @property (nonatomic, strong) ZSCustomButton *receiveBtn;
@@ -40,7 +40,6 @@
 - (instancetype)initWithWallet:(Wallet*)wallet {
     if (self = [super initWithNibName:nil bundle:nil]) {
         _wallet = wallet;
-        
         _accountAddress = [_wallet addressForIndex:_wallet.activeAccountIndex];
         _accountChainId = [_wallet chainIdForIndex:_wallet.activeAccountIndex];
         
@@ -69,6 +68,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    self.title = [NSString stringWithFormat:@"%@ %@",_wallet.activeToken.symbol,NSLocalizedString(@"余额",nil)];
+    self.addressLb.text = [[_wallet addressForIndex:_wallet.activeAccountIndex] checksumAddress];
     
     [self configElements];
     [self configData];
@@ -79,20 +80,15 @@
 - (void)configElements {
     
     [self.view addSubview:self.tableView];
-    [self.topView addSubview:self.currencyLb];
 //    [self.topView addSubview:self.coinCountLb];
     [self.topView addSubview:self.assetsLb];
+    [self.topView addSubview:self.addressLb];
     [self.topView addSubview:self.receiveBtn];
     [self.topView addSubview:self.sendBtn];
-    [self.topView addSubview:self.backupWalletBtn];
+//    [self.topView addSubview:self.backupWalletBtn];
     
     [self.tableView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.edges.equalTo(self.view);
-    }];
-    
-    [self.currencyLb mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.centerX.equalTo(self.topView);
-        make.top.equalTo(self.topView).offset(40);
     }];
     
 //    [self.coinCountLb mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -100,27 +96,44 @@
 //        make.top.equalTo(self.currencyLb.mas_bottom).offset(5);
 //    }];
     
+    
+    
     [self.assetsLb mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.equalTo(self.topView);
-        make.top.equalTo(self.self.currencyLb.mas_bottom).offset(5);
+        make.top.mas_equalTo(NAVIGATION_BAR_HEIGHT);
     }];
     
-    [self.backupWalletBtn mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.right.bottom.equalTo(self.topView);
-        make.height.mas_equalTo(50);
+    [self.addressLb mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.centerX.equalTo(self.topView);
+        make.top.equalTo(self.assetsLb.mas_bottom).offset(10);
     }];
+    
+//    [self.backupWalletBtn mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.left.right.bottom.equalTo(self.topView);
+//        make.height.mas_equalTo(60);
+//    }];
+    
+    UIView *lineView = [[UIView alloc] init];
+    lineView.backgroundColor = [UIColor commonGreenColor];
+    [self.topView addSubview:lineView];
     
     [self.sendBtn mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.topView);
         make.width.mas_equalTo(ScreenWidth/2);
-        make.bottom.equalTo(self.backupWalletBtn.mas_top);
-        make.height.mas_equalTo(self.backupWalletBtn.mas_height);
+        make.bottom.equalTo(self.topView);
+        make.height.mas_equalTo(@60);
     }];
     
     [self.receiveBtn mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.sendBtn.mas_right);
-        make.bottom.equalTo(self.backupWalletBtn.mas_top);
+        make.bottom.equalTo(self.topView);
         make.size.equalTo(self.sendBtn);
+    }];
+    
+    [lineView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.right.equalTo(self.topView);
+        make.height.equalTo(@8);
+        make.bottom.equalTo(self.receiveBtn.mas_top).offset(-3);
     }];
 
 }
@@ -156,11 +169,11 @@
                         if (unlock) {
                             [weakSelf showTipVCWithPassword:password];
                         } else {
-                            showMessage(showTypeError, NSLocalizedString(@"交易密码错误", nil));
+                            showMessage(showTypeError, NSLocalizedString(@"钱包密码错误", nil));
                         }
                     }];
                 }else if(index == 1){
-                    showMessage(showTypeError, NSLocalizedString(@"交易密码错误", nil));
+                    showMessage(showTypeError, NSLocalizedString(@"钱包密码错误", nil));
                 }
             }];
 
@@ -187,9 +200,6 @@
 
 #pragma mark ==== 余额
 - (void)configData {
-    NSString *address = [[_wallet addressForIndex:_wallet.activeAccountIndex] checksumAddress];
-    NSLog(@"%@",address);
-    
     [self setTokenBalance:[_wallet tokenBalanceForIndex:_wallet.activeAccountIndex]];
 }
 
@@ -231,21 +241,18 @@
         transactions = [_wallet transactionHistoryForIndex:_wallet.activeAccountIndex];
 
         self.sections = [NSMutableArray array];
-        Address *contractAddress = [_wallet activeToken].address;
-        if (contractAddress) {
-            //代币合约
+        //NSData *transfer = [SecureData hexStringToData:@"0xa9059cbb"];
+        Address *tokenAddress = [_wallet activeToken].address;
+        if (tokenAddress) {
             for (TransactionInfo *info in transactions) {
-                if ([info.toAddress isEqualToAddress:contractAddress]||[info.contractAddress isEqualToAddress:contractAddress]) {
+                //代币合约:1、etherscan
+                if ([info.toAddress isEqualToAddress:tokenAddress]) {
                     [self.sections addObject:info];
                 }
             }
         } else {
-            //以太交易记录
-            for (TransactionInfo *info in transactions) {
-                if (info.contractAddress == nil) {
-                    [self.sections addObject:info];
-                }
-            }
+            //以太交易记录，就是全部记录
+            [self.sections addObjectsFromArray:transactions];
         }
         
         [self.tableView reloadData];
@@ -263,7 +270,7 @@
         [self wr_setNavBarTintColor:[[UIColor blackColor] colorWithAlphaComponent:alpha]];
         [self wr_setNavBarTitleColor:[[UIColor commonWhiteColor] colorWithAlphaComponent:alpha]];
         [self wr_setStatusBarStyle:UIStatusBarStyleDefault];
-        self.title = [NSString stringWithFormat:@"%@ %@",_wallet.activeToken.symbol,NSLocalizedString(@"余额",nil)];
+//        self.title = [NSString stringWithFormat:@"%@ %@",_wallet.activeToken.symbol,NSLocalizedString(@"余额",nil)];
     }
     else
     {
@@ -271,7 +278,7 @@
         [self wr_setNavBarTintColor:[UIColor whiteColor]];
         [self wr_setNavBarTitleColor:[UIColor commonWhiteColor]];
         [self wr_setStatusBarStyle:UIStatusBarStyleLightContent];
-        self.title = @"";
+//        self.title = @"";
     }
 }
 
@@ -287,7 +294,7 @@
 #pragma mark - TableViewDelegate
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
     if (section == 0) {
-        return 30;
+        return 35;
     }
     return 3;
 }
@@ -296,12 +303,12 @@
     
     if (section == 0) {
         UIView *headerView = [[UIView alloc] init];
-        headerView.backgroundColor = [UIColor commonBackgroundColor];
+        headerView.backgroundColor = [UIColor mainThemeColor];
         
         UILabel *promptLb = [UILabel new];
         promptLb.text = NSLocalizedString(@"交易记录",nil);
         promptLb.font = [UIFont systemFontOfSize:15.0f];
-        promptLb.textColor = [UIColor whiteColor];
+        promptLb.textColor = [UIColor commonWhiteColor];
         [headerView addSubview:promptLb];
         [promptLb mas_makeConstraints:^(MASConstraintMaker *make) {
             make.left.equalTo(headerView).offset(10);
@@ -311,7 +318,7 @@
     }
     
     UIView *headerView = [[UIView alloc] init];
-    headerView.backgroundColor = [UIColor commonBackgroundColor];
+    headerView.backgroundColor = [UIColor mainThemeColor];
     return headerView;
 }
 
@@ -323,12 +330,12 @@
     CurrencyDetailsTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:[CurrencyDetailsTableViewCell at_identifier]];
     [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
     TransactionInfo *transactionInfo = [_sections objectAtIndex:indexPath.section];
-    [cell setAddress:_wallet.activeAccountAddress blockNumber:_wallet.activeAccountBlockNumber transactionInfo:transactionInfo];
+    [cell setWallet:_wallet transactionInfo:transactionInfo];
     return cell;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    TransactionDetailsViewController *recordVC = [[TransactionDetailsViewController alloc] init];
+    TransactionDetailsViewController *recordVC = [[TransactionDetailsViewController alloc] initWithWallet:_wallet];
     TransactionInfo *transactionInfo = [_sections objectAtIndex:indexPath.section];
     [recordVC setAddress:_wallet.activeAccountAddress blockNumber:_wallet.activeAccountBlockNumber transactionInfo:transactionInfo];
     [self.navigationController pushViewController:recordVC animated:YES];
@@ -359,14 +366,13 @@
     return _topView;
 }
 
-- (UILabel *)currencyLb {
-    if (!_currencyLb) {
-        _currencyLb = [UILabel new];
-        _currencyLb.font = [UIFont systemFontOfSize:18.0f];
-        _currencyLb.textColor = [UIColor commonWhiteColor];
-        _currencyLb.text = [NSString stringWithFormat:@"%@ %@",_wallet.activeToken.symbol,NSLocalizedString(@"余额",nil)];
+- (UILabel *)addressLb {
+    if (!_addressLb) {
+        _addressLb = [UILabel new];
+        _addressLb.font = [UIFont systemFontOfSize:13.0f];
+        _addressLb.textColor = [UIColor whiteColor];
     }
-    return _currencyLb;
+    return _addressLb;
 }
 
 //- (UILabel *)coinCountLb {
@@ -382,8 +388,8 @@
 - (UILabel *)assetsLb {
     if (!_assetsLb) {
         _assetsLb = [UILabel new];
-        _assetsLb.font = [UIFont systemFontOfSize:15.0f];
-        _assetsLb.textColor = [UIColor commonWhiteColor];
+        _assetsLb.font = [UIFont systemFontOfSize:23.0f];
+        _assetsLb.textColor = [UIColor commonOrangeTextColor];
         _assetsLb.text = [Payment formatEther:_wallet.activeToken.balance];
     }
     return _assetsLb;
@@ -393,10 +399,10 @@
     if (!_receiveBtn) {
         _receiveBtn = [[ZSCustomButton alloc] init];
         _receiveBtn.zs_buttonType = ZSCustomButtonImageLeft;
-        [_receiveBtn setImage:[UIImage imageNamed:@"receive"] forState:UIControlStateNormal];
-        [_receiveBtn setTitle:NSLocalizedString(@"收款",nil) forState:UIControlStateNormal];
+        [_receiveBtn setImage:[UIImage imageNamed:@"send"] forState:UIControlStateNormal];
+        [_receiveBtn setTitle:NSLocalizedString(@"转账",nil) forState:UIControlStateNormal];
         [_receiveBtn setBackgroundColor:[UIColor commonCellcolor]];
-        [_receiveBtn setTag:0x02];
+        [_receiveBtn setTag:0x01];
         [_receiveBtn addTarget:self action:@selector(buttonClick:)];
     }
     return _receiveBtn;
@@ -406,10 +412,10 @@
     if (!_sendBtn) {
         _sendBtn = [[ZSCustomButton alloc] init];
         _sendBtn.zs_buttonType = ZSCustomButtonImageLeft;
-        [_sendBtn setImage:[UIImage imageNamed:@"send"] forState:UIControlStateNormal];
-        [_sendBtn setTitle:NSLocalizedString(@"转账",nil) forState:UIControlStateNormal];
+        [_sendBtn setImage:[UIImage imageNamed:@"receive"] forState:UIControlStateNormal];
+        [_sendBtn setTitle:NSLocalizedString(@"收款",nil) forState:UIControlStateNormal];
         [_sendBtn setBackgroundColor:[UIColor commonCellcolor]];
-        [_sendBtn setTag:0x01];
+        [_sendBtn setTag:0x02];
         [_sendBtn addTarget:self action:@selector(buttonClick:)];
         [_sendBtn setShowLineType:ShowLineType_Right];
     }

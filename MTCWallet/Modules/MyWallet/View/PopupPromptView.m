@@ -69,6 +69,8 @@
     
     self.contentView = [UIView new];
     [self addSubview:self.contentView];
+    [self.contentView.layer setMasksToBounds:YES];
+    [self.contentView.layer setCornerRadius:5.0f];
     [self.contentView setBackgroundColor:[UIColor whiteColor]];
     [self.contentView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.center.equalTo(self);
@@ -80,7 +82,7 @@
     self.titleLb = [UILabel new];
     [self.contentView addSubview:self.titleLb];
     self.titleLb.text = NSLocalizedString(@"删除提示！",nil);
-    self.titleLb.textColor = [UIColor commonRedColor];
+    self.titleLb.textColor = [UIColor commonOrangeTextColor];
     self.titleLb.font = [UIFont systemFontOfSize:16.0f];
     self.titleLb.textAlignment = NSTextAlignmentCenter;
     [self.titleLb mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -90,37 +92,43 @@
     
     self.promptLb = [UILabel new];
     [self.contentView addSubview:self.promptLb];
-    self.promptLb.textColor = [UIColor commonTextColor];
+    self.promptLb.textColor = [UIColor commonlightGrayTextColor];
     self.promptLb.font = [UIFont systemFontOfSize:18.0f];
-    [self.promptLb setAttributedText:[NSAttributedString getAttributWithString:NSLocalizedString(@"钱包删除后，将无法撤销操作，请确保已备份钱包私钥！",nil) UnChangePart:@"" changePart:NSLocalizedString(@"将无法撤销操作",nil) changeColor:[UIColor commonRedColor] changeFont:[UIFont systemFontOfSize:18.0f]]];
+    [self.promptLb setAttributedText:[NSAttributedString getAttributWithString:NSLocalizedString(@"钱包删除后，将无法撤销操作，请确保已备份钱包私钥！",nil) UnChangePart:@"" changePart:NSLocalizedString(@"将无法撤销操作",nil) changeColor:[UIColor commonOrangeTextColor] changeFont:[UIFont systemFontOfSize:18.0f]]];
     self.promptLb.numberOfLines = 0;
     self.promptLb.textAlignment = NSTextAlignmentCenter;
     [self.promptLb mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.equalTo(self.contentView);
         make.left.equalTo(self.contentView).offset(15);
-        make.top.equalTo(self.titleLb.mas_bottom).offset(15);
+        make.top.equalTo(self.titleLb.mas_bottom).offset(25);
         make.right.equalTo(self.contentView).offset(-15);
     }];
     
-    self.importButton = [UIButton buttonWithtitle:NSLocalizedString(@"备份/导出钱包",nil) titleColor:[UIColor whiteColor] fontSize:16.0f BackgroundColor:[UIColor commonGreenColor] targe:self action:@selector(promptButtonClick:)];
+    self.importButton = [UIButton buttonWithtitle:NSLocalizedString(@"备份/导出钱包",nil) titleColor:[UIColor commonWhiteColor] fontSize:16.0f BackgroundColor:[UIColor mainThemeColor] targe:self action:@selector(promptButtonClick:)];
     [self.contentView addSubview:self.importButton];
     [self.importButton setTag:0x01];
+    [self.importButton.layer setMasksToBounds:YES];
+    [self.importButton.layer setCornerRadius:3.0f];
     
-    self.deleteButton = [UIButton buttonWithtitle:NSLocalizedString(@"确认删除",nil) titleColor:[UIColor whiteColor] fontSize:16.0f BackgroundColor:[UIColor commonRedColor] targe:self action:@selector(promptButtonClick:)];
+    self.deleteButton = [UIButton buttonWithtitle:NSLocalizedString(@"删除钱包",nil) titleColor:[UIColor commonWhiteColor] fontSize:16.0f BackgroundColor:[UIColor commonRedColor] targe:self action:@selector(promptButtonClick:)];
     [self.contentView addSubview:self.deleteButton];
     [self.deleteButton setTag:0x02];
+    [self.deleteButton.layer setMasksToBounds:YES];
+    [self.deleteButton.layer setCornerRadius:3.0f];
     
-    self.cancelButton = [UIButton buttonWithtitle:NSLocalizedString(@"取消",nil) titleColor:[UIColor commonTextColor] fontSize:16.0f BackgroundColor:[UIColor whiteColor] targe:self action:@selector(promptButtonClick:)];
-    [self.cancelButton.layer setBorderColor:[UIColor commonLightGrayTextColor].CGColor];
-    [self.cancelButton.layer setBorderWidth:1.0f];
+    self.cancelButton = [UIButton buttonWithtitle:NSLocalizedString(@"取消",nil) titleColor:[UIColor commonWhiteColor] fontSize:16.0f BackgroundColor:[UIColor mainThemeColor] targe:self action:@selector(promptButtonClick:)];
+//    [self.cancelButton.layer setBorderColor:[UIColor commonLightGrayTextColor].CGColor];
+//    [self.cancelButton.layer setBorderWidth:1.0f];
     [self.contentView addSubview:self.cancelButton];
     [self.cancelButton setTag:0x03];
+    [self.cancelButton.layer setMasksToBounds:YES];
+    [self.cancelButton.layer setCornerRadius:3.0f];
     
     [self.cancelButton mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.contentView).offset(15);
         make.right.equalTo(self.contentView).offset(-15);
         make.centerX.equalTo(self.contentView);
-        make.height.mas_equalTo(@45);
+        make.height.mas_equalTo(@50);
         make.bottom.equalTo(self.contentView).offset(-15);
     }];
     
@@ -130,7 +138,7 @@
     [@[self.importButton, self.deleteButton] mas_makeConstraints:^(MASConstraintMaker *make) {
         make.bottom.equalTo(self.cancelButton.mas_top).offset(-10);
         make.width.mas_equalTo(self.importButton.mas_width);
-        make.height.mas_equalTo(@45);
+        make.height.mas_equalTo(@50);
     }];
 }
 

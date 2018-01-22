@@ -27,16 +27,16 @@ NSArray *textFiledPlaceHolder(NSInteger index) {
              @[
                @[@"m/44'/66'/0'/0/0",@"m/44'/66'/0'/0/0",@"m/44'/66'/0'/0/0"],
                NSLocalizedString(@"输入钱包名称", nil),
-               NSLocalizedString(@"设置交易密码", nil),
-               NSLocalizedString(@"重复交易密码", nil),
+               NSLocalizedString(@"设置钱包密码", nil),
+               NSLocalizedString(@"重复钱包密码", nil),
                NSLocalizedString(@"输入密码提示（可不填）", nil)],
              @[
                  NSLocalizedString(@"输入钱包名称", nil),
                  NSLocalizedString(@"Keystore密码", nil)],
              @[
                  NSLocalizedString(@"输入钱包名称", nil),
-                 NSLocalizedString(@"设置交易密码", nil),
-                 NSLocalizedString(@"重复交易密码", nil),
+                 NSLocalizedString(@"设置钱包密码", nil),
+                 NSLocalizedString(@"重复钱包密码", nil),
                  NSLocalizedString(@"输入密码提示（可不填）", nil)],
              ][index];
 }
@@ -95,7 +95,7 @@ NSArray *textFiledPlaceHolder(NSInteger index) {
     [self.view addSubview:titleView];
     [titleView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.right.left.equalTo(self.view);
-        make.top.equalTo(@64);
+        make.top.mas_equalTo(NAVIGATION_BAR_HEIGHT);
         make.height.equalTo(@50);
     }];
     
@@ -106,8 +106,10 @@ NSArray *textFiledPlaceHolder(NSInteger index) {
     void(^tapButton)(UIButton *) = ^ (UIButton *btn) {
         for (UIButton *b in btn.superview.subviews) {
             [b setSelected:NO];
+            [b setTitleColor:[UIColor mainThemeColor] forState:UIControlStateNormal];
         }
         [btn setSelected:YES];
+        [btn setTitleColor:[UIColor commonOrangeTextColor] forState:UIControlStateNormal];
         [weakSelf scrollView:horizontalScrollView page:btn.tag];
     };
     
@@ -118,7 +120,10 @@ NSArray *textFiledPlaceHolder(NSInteger index) {
         btn.titleLabel.font = [UIFont systemFontOfSize:15];
         btn.tag = i;
         [btn setTitleColor:[UIColor colorWithHexString:@"ed6f2d"] forState:UIControlStateSelected];
-        [btn setTitleColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
+        [btn setTitleColor:[UIColor mainThemeColor] forState:UIControlStateNormal];
+        if (i == 0) {
+            [btn setSelected:YES];
+        }
         [btn handleControlEvent:UIControlEventTouchUpInside withBlock:tapButton];
         [titleView addSubview:btn];
     }
@@ -136,7 +141,7 @@ NSArray *textFiledPlaceHolder(NSInteger index) {
     }];
     
     _lineView = [[UIView alloc] init];
-    [_lineView setBackgroundColor:[UIColor colorWithHexString:@"ed6f2d"]];
+    [_lineView setBackgroundColor:[UIColor commonOrangeTextColor]];
     [self.view addSubview:_lineView];
     [_lineView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(@0);
@@ -165,10 +170,10 @@ NSArray *textFiledPlaceHolder(NSInteger index) {
     }];
     //过渡视图添加子视图
     UIView *previousView =nil;
-    for (int i =0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
     {
         UITableView *table = [[UITableView alloc]initWithFrame:CGRectZero style:UITableViewStylePlain];
-        table.backgroundColor = COLOR_BACKGROUND;
+        table.backgroundColor = [UIColor mainThemeColor];
         table.tag = i;
         table.delegate = self;
         table.dataSource = self;
@@ -208,9 +213,10 @@ NSArray *textFiledPlaceHolder(NSInteger index) {
         make.right.mas_equalTo(previousView.mas_right);
     }];
     
-    BlockButton *btn = [[BlockButton alloc] initWithFrame:CGRectMake(0, 0, 60, 40)];
-    [btn setTitle:NSLocalizedString(@"扫描", nil) forState:UIControlStateNormal];
-    [btn setTitleColor:[UIColor commonWhiteColor] forState:UIControlStateNormal];
+    BlockButton *btn = [[BlockButton alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
+//    [btn setTitle:NSLocalizedString(@"扫描", nil) forState:UIControlStateNormal];
+    [btn setImage:[UIImage imageNamed:@"Scanning_icon"] forState:UIControlStateNormal];
+//    [btn setTitleColor:[UIColor commonWhiteColor] forState:UIControlStateNormal];
     [btn handleControlEvent:UIControlEventTouchUpInside withBlock:^{
         ScanQRCodeViewController *scanVC = [[ScanQRCodeViewController alloc] init];
         scanVC.block = ^(NSString *text) {
@@ -290,7 +296,7 @@ NSArray *textFiledPlaceHolder(NSInteger index) {
     UITextView *textView = [UITextView new];
     textView.text = placeHolder;
     textView.delegate = self;
-    textView.textColor = [UIColor colorWithWhite:0x99/255. alpha:1];
+    textView.textColor = [UIColor commonlightGrayTextColor];
     [cell.contentView addSubview:textView];
     [textView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.edges.equalTo(bg).insets(UIEdgeInsetsMake(8, 8, 8, 8));
@@ -308,6 +314,7 @@ NSArray *textFiledPlaceHolder(NSInteger index) {
         tf.placeholder = placeHolder;
     }
     tf.delegate = self;
+    [tf setValue:[UIColor commonlightGrayTextColor] forKeyPath:@"_placeholderLabel.textColor"];
     [tf addTarget:self action:@selector(textfieldDidChange:) forControlEvents:UIControlEventEditingChanged];
     [cell.contentView addSubview:tf];
     [tf mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -321,7 +328,7 @@ NSArray *textFiledPlaceHolder(NSInteger index) {
     UIView *v = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 100)];
     BlockButton *btn = [BlockButton buttonWithType:UIButtonTypeCustom];
     [btn setTitle:NSLocalizedString(@"确认导入", nil)];
-    [btn setBackgroundColor:COLOR_GREEN];
+    [btn setBackgroundColor:[UIColor commonOrangeTextColor]];
     btn.layer.cornerRadius = 5;
     btn.tag = tag;
     [btn handleControlEvent:UIControlEventTouchUpInside withBlock:block];

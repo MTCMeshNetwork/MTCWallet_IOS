@@ -10,6 +10,6 @@
 
 @interface MainStartHomeTableViewCell : MGSwipeTableCell
 
-- (void)setMainStartHomeTableViewCellInfo:(Erc20Token *)info;
+- (void)setMainStartHomeTableViewCellInfo:(Erc20Token *)info defaultPrice:(float)etherPrice;
 
 @end

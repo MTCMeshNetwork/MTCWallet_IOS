@@ -10,8 +10,6 @@
 
 @interface TransactionDetailTableViewCell : UITableViewCell
 
-- (void)setAddress:(Address*)address blockNumber:(NSUInteger)blockNumber transactionInfo: (TransactionInfo *)transactionInfo;
-@property (nonatomic, readonly) Address *address;
-@property (nonatomic, readonly) TransactionInfo *transactionInfo;
+- (void)setAddress:(Address*)address token:(Address *)tokenAddress blockNumber:(NSUInteger)blockNumber transactionInfo: (TransactionInfo *)transactionInfo;
 
 @end

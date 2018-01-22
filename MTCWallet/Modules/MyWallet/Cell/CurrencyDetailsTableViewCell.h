@@ -11,9 +11,9 @@
 
 @interface CurrencyDetailsTableViewCell : UITableViewCell
 
-- (void)setAddress: (Address*)address blockNumber:(NSUInteger)blockNumber transactionInfo: (TransactionInfo*)transactionInfo;
+- (void)setWallet:(Wallet *)wallet transactionInfo: (TransactionInfo*)transactionInfo;
 
-@property (nonatomic, readonly) Address *address;
+@property (nonatomic, readonly) Wallet *wallet;
 @property (nonatomic, readonly) TransactionInfo *transactionInfo;
 
 @end

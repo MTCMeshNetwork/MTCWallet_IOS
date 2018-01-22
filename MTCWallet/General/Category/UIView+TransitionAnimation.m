@@ -17,7 +17,7 @@
     //CATransition实体
     CATransition *transition=[CATransition animation];
     //动画时间
-    transition.duration = durationTime;
+    transition.duration = durationTime;transition.endProgress = 0.5;
     //选择动画过渡方向
     switch (subtype) {
         case Direction_Left:
@@ -114,6 +114,7 @@
             break;
     }
     //动画加到图层上
+    
     [self.layer addAnimation:transition forKey:nil];
 }
 

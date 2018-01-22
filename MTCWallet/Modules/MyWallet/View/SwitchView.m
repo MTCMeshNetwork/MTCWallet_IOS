@@ -18,8 +18,7 @@
 - (instancetype)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
         
-        [self setBackgroundColor:[UIColor whiteColor]];
-        [self setShowLineType:ShowLineType_Top];
+//        [self setShowLineType:ShowLineType_Top];
         
         [self addSubview:self.titleLb];
         [self addSubview:self.detailLb];
@@ -53,7 +52,7 @@
     if (!_titleLb) {
         _titleLb = [UILabel new];
         _titleLb.font = [UIFont systemFontOfSize:16.0f];
-        _titleLb.textColor = [UIColor commonTextColor];
+        _titleLb.textColor = [UIColor commonlightGrayTextColor];
     }
     return _titleLb;
 }
@@ -62,7 +61,7 @@
     if (!_detailLb) {
         _detailLb = [UILabel new];
         _detailLb.font = [UIFont systemFontOfSize:16.0f];
-        _detailLb.textColor = [UIColor lightGrayColor];
+        _detailLb.textColor = [UIColor commonlightGrayTextColor];
     }
     return _detailLb;
 }

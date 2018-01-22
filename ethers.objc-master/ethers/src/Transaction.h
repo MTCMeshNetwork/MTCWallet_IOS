@@ -52,8 +52,8 @@ typedef NS_OPTIONS(unsigned char, ChainId)  {
     ChainIdRopsten      = 0x03,
     ChainIdRinkeby      = 0x04,
     ChainIdKovan        = 0x2a,
-//    ChainIdPrivate      = 0x0f,
-    ChainIdPrivate      = ChainIdHomestead,
+    ChainIdPrivate      = 0x0f,
+//    ChainIdPrivate      = ChainIdHomestead,
 };
 
 extern NSString * _Nullable chainName(ChainId chainId);

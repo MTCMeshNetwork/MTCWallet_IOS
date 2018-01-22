@@ -45,7 +45,7 @@ typedef void(^segmentedControlBlock) (NSInteger index);
 
 @end
 
-// 交易密码
+// 钱包密码
 @interface TransferAccountsPasswordTableViewCell : TransferAccountsTableViewCell
 
 @end

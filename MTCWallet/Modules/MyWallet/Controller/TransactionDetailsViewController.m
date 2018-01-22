@@ -47,7 +47,9 @@ typedef NS_ENUM(NSUInteger, TransactionDetail) {
     TransactionDetailMaxSection,
 };
 
-@interface TransactionDetailsViewController () <UITableViewDelegate,UITableViewDataSource>
+@interface TransactionDetailsViewController () <UITableViewDelegate,UITableViewDataSource> {
+    Wallet *_wallet;
+}
 
 @property (nonatomic, strong) UITableView *tableView;
 @property (nonatomic, copy) NSString *status;
@@ -71,6 +73,12 @@ typedef NS_ENUM(NSUInteger, TransactionDetail) {
         // @TODO: Add notification to regenerate these on local change
     });
     
+}
+
+- (instancetype)initWithWallet:(Wallet *)wallet {
+    self = [super initWithNibName:nil bundle:nil];
+    _wallet = wallet;
+    return self;
 }
 
 - (void)viewDidLoad {
@@ -174,40 +182,46 @@ typedef NS_ENUM(NSUInteger, TransactionDetail) {
     
     if (!cell) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:[UITableViewCell at_identifier]];
-        [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
         cell.backgroundColor = [UIColor commonCellcolor];
         cell.textLabel.textColor = [UIColor commonWhiteColor];
         cell.textLabel.font = [UIFont systemFontOfSize:14.0f];
         
-        cell.detailTextLabel.text = NSLocalizedString(@"测试数据",nil);
+//        cell.detailTextLabel.text = NSLocalizedString(@"测试数据",nil);
         cell.detailTextLabel.textColor = [UIColor whiteColor];
         cell.detailTextLabel.font = [UIFont systemFontOfSize:14.0f];
         cell.detailTextLabel.lineBreakMode = NSLineBreakByTruncatingMiddle;
     }
     
+    [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
     switch (indexPath.section) {
         case TransactionDetail_SituationSection:
         {
             TransactionDetailTableViewCell *transactionCell = [tableView dequeueReusableCellWithIdentifier:[TransactionDetailTableViewCell at_identifier]];
             [transactionCell setSelectionStyle:UITableViewCellSelectionStyleNone];
-            [transactionCell setAddress:_address blockNumber:self.blockNumber transactionInfo:_transactionInfo];
+            [transactionCell setAddress:_address token:_wallet.activeToken.address blockNumber:self.blockNumber transactionInfo:_transactionInfo];
             return transactionCell;
             break;
         }
             
         case TransactionDetail_DetailSection:
         {
-            NSArray *titleArray = @[@"交易类型",@"付款钱包",@"收款钱包",@"交易时间",@"交易备注"];
+            NSArray *titleArray = @[NSLocalizedString(@"交易类型", nil),NSLocalizedString(@"付款钱包", nil),NSLocalizedString(@"收款钱包", nil),NSLocalizedString(@"交易时间", nil),NSLocalizedString(@"交易备注", nil)];
             [cell.textLabel setText:titleArray[indexPath.row]];
 
             if (indexPath.row == 0) {   //交易类型
                 [cell.detailTextLabel setText: self.tradeType];
             }
             else if (indexPath.row == 1) {   //付款钱包
+                [cell setSelectionStyle:UITableViewCellSelectionStyleGray];
                 [cell.detailTextLabel setText: _transactionInfo.fromAddress.checksumAddress];
             }
             else if (indexPath.row == 2) {   //收款钱包
-                [cell.detailTextLabel setText: _transactionInfo.toAddress.checksumAddress];
+                [cell setSelectionStyle:UITableViewCellSelectionStyleGray];
+                if (_wallet.activeToken.address) {
+                    [cell.detailTextLabel setText: _transactionInfo.tokenTo.checksumAddress];
+                }else {
+                    [cell.detailTextLabel setText: _transactionInfo.toAddress.checksumAddress];
+                }
             }
             else if (indexPath.row == 3) {   //交易时间
                 [cell.detailTextLabel setAttributedText:getTimestamp2(_transactionInfo.timestamp)];
@@ -220,7 +234,7 @@ typedef NS_ENUM(NSUInteger, TransactionDetail) {
             
         case TransactionDetail_OtherSection:
         {
-            NSArray *titleArray = @[@"网络",@"区块高度",@"Gas Limit",@"Gas Price"];
+            NSArray *titleArray = @[NSLocalizedString(@"网络",nil),NSLocalizedString(@"区块高度",nil),@"Gas Limit",@"Gas Price"];
             [cell.textLabel setText:titleArray[indexPath.row]];
             [cell.detailTextLabel setText:@"-"];
             if (indexPath.row == 0) {     //网络
@@ -264,6 +278,12 @@ typedef NS_ENUM(NSUInteger, TransactionDetail) {
     if (indexPath.section == TransactionDetail_AddressSection) {
         UIViewController *vc = [[UIViewController alloc] initWithNibName:nil bundle:nil];
         vc.title = NSLocalizedString(@"查询交易", nil);
+        [vc.view setBackgroundColor:[UIColor commonBackgroundColor]];
+        // 设置导航栏颜色
+        [vc wr_setNavBarBarTintColor:[UIColor commonBackgroundColor]];
+        // 设置初始导航栏透明度
+        [vc wr_setNavBarBackgroundAlpha:1];
+        [vc wr_setNavBarTitleColor:[[UIColor commonWhiteColor] colorWithAlphaComponent:1]];
         UIWebView *web = [[UIWebView alloc] init];
         [vc.view addSubview:web];
         [web mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -274,6 +294,13 @@ typedef NS_ENUM(NSUInteger, TransactionDetail) {
         UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
         NSString *hashBlock = cell.detailTextLabel.text;
         [web loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://etherscan.io/tx/%@",hashBlock]]]];
+    }
+    if (indexPath.section == TransactionDetail_DetailSection) {
+        if (indexPath.row == 1 || indexPath.row == 2) {
+            UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+            [[UIPasteboard generalPasteboard] setString:cell.detailTextLabel.text];
+            showMessage(showTypeSuccess, NSLocalizedString(@"复制成功", nil));
+        }
     }
 }
 

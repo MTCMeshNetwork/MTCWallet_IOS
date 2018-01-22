@@ -24,7 +24,7 @@
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:msg preferredStyle:UIAlertControllerStyleAlert];
     
     [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-        textField.placeholder = NSLocalizedString(@"输入交易密码",nil);
+        textField.placeholder = NSLocalizedString(@"输入钱包密码",nil);
         textField.textColor = [UIColor blueColor];
         textField.clearButtonMode = UITextFieldViewModeWhileEditing;
         textField.borderStyle = UITextBorderStyleRoundedRect;
@@ -41,8 +41,8 @@
     [self presentViewController:alertController animated:YES completion:nil];
 }
 
-- (void)showAlertMessage:(NSString *)msg cancelTitle:(NSString *)cancelTitle cancelClicked:(void(^)(void))cancelClicked confirmTitle:(NSString *)confirmTitle confirmClicked:(void(^)(void))confirmClicked {
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:msg preferredStyle:UIAlertControllerStyleAlert];
+- (void)showAlertWithTitle:(NSString *)title message:(NSString *)msg cancelTitle:(NSString *)cancelTitle cancelClicked:(void(^)(void))cancelClicked confirmTitle:(NSString *)confirmTitle confirmClicked:(void(^)(void))confirmClicked {
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:title message:msg preferredStyle:UIAlertControllerStyleAlert];
     
     [alert addAction:[UIAlertAction actionWithTitle:cancelTitle style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
         if (cancelClicked) {

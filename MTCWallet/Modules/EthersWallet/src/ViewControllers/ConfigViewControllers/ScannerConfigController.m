@@ -522,12 +522,12 @@ typedef enum PromptType {
         
         if (_promptType == PromptTypeFoundPasteboard) {
             [_infoIcon setText:ICON_NAME_CLIPBOARD animated:YES];
-            [_infoText setText:@"Found Clipboard Address" animated:YES];
+            [_infoText setText:NSLocalizedString(@"发现剪贴板地址", nil) animated:YES];
             hideText = NO;
         
         } else if (_promptType == PromptTypeFoundSearch) {
             [_infoIcon setText:ICON_NAME_ACCOUNT animated:YES];
-            [_infoText setText:@"Found Registered Address" animated:YES];
+            [_infoText setText:NSLocalizedString(@"发现已注册地址", nil) animated:YES];
             hideText = NO;
         }
         
@@ -561,29 +561,29 @@ typedef enum PromptType {
     
     } else if (promptType == PromptTypeScanning) {
         if (_cameraReady) {
-            self.navigationItem.prompt = @"Scanning for QR code...";
+            self.navigationItem.prompt = NSLocalizedString(@"扫描二维码", nil);
         } else {
-            self.navigationItem.prompt = @"Camera disabled";
+            self.navigationItem.prompt = NSLocalizedString(@"相机不可用", nil);
         }
         _searchBar.text = @"";
         _boxView.points = nil;
         
     } else if (promptType == PromptTypeSearching) {
-        self.navigationItem.prompt = @"Searching...";
+        self.navigationItem.prompt = NSLocalizedString(@"搜索中...", nil);
 
     } else if (promptType == PromptTypeProcessingPhoto) {
-        self.navigationItem.prompt = @"Analysing Photo...";
+        self.navigationItem.prompt = NSLocalizedString(@"识别中...", nil);
 
     } else if (promptType == PromptTypeNameNotFound) {
-        self.navigationItem.prompt = @"ENS name not registered.";
+        self.navigationItem.prompt = NSLocalizedString(@"未找到以太坊域名", nil);
         [_hapticBad impactOccurred];
 
     } else if (promptType == PromptTypePhotoNotFound) {
-        self.navigationItem.prompt = @"No QR code found.";
+        self.navigationItem.prompt = NSLocalizedString(@"未找到二维码", nil);
         [_hapticBad impactOccurred];
 
     } else if (promptType == PromptTypeTyping) {
-        self.navigationItem.prompt = @"Enter an ENS name";
+        self.navigationItem.prompt = NSLocalizedString(@"输入以太坊域名", nil);
     }
     
 //    self.nextEnabled = (_promptType & PROMPT_FOUND);
@@ -776,20 +776,20 @@ typedef enum PromptType {
         enableCamera.center = CGPointMake(_cameraPreview.frame.size.width / 2.0f, _cameraPreview.frame.size.height / 2.0f);
         enableCamera.font = [UIFont fontWithName:FONT_BOLD size:16.0f];
         enableCamera.numberOfLines = 3;
-        enableCamera.text = @"Please enable the camera in your settings to scan QR codes.";
+        enableCamera.text = NSLocalizedString(@"请在设置中启用相机", nil);
         enableCamera.textAlignment = NSTextAlignmentCenter;
         enableCamera.textColor = [UIColor whiteColor];
         [_cameraPreview addSubview:enableCamera];
     }
 
-    _searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(25.0f, 106.0f, size.width - 50.0f, 44.0f)];
+    _searchBar = [[UISearchBar alloc] initWithFrame:CGRectMake(25.0f, 86.0f + STATUS_BAR_HEIGHT, size.width - 50.0f, 44.0f)];
     _searchBar.autocapitalizationType = UITextAutocapitalizationTypeNone;
     _searchBar.autocorrectionType = UITextAutocorrectionTypeNo;
     _searchBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     _searchBar.barStyle = UIBarStyleBlack;
     _searchBar.delegate = self;
     _searchBar.keyboardType = UIKeyboardTypeEmailAddress;
-    _searchBar.placeholder = @"Lookup ENS name";
+    _searchBar.placeholder = NSLocalizedString(@"搜索以太坊域名", nil);
     _searchBar.returnKeyType = UIReturnKeySearch;
     _searchBar.searchBarStyle = UISearchBarStyleMinimal;
     _searchBar.tintColor = [UIColor whiteColor];
@@ -848,7 +848,7 @@ typedef enum PromptType {
         enablePhotos.center = CGPointMake(_photosView.frame.size.width / 2.0f, _photosView.frame.size.height / 2.0f);
         enablePhotos.font = [UIFont fontWithName:FONT_BOLD size:16.0f];
         enablePhotos.numberOfLines = 3;
-        enablePhotos.text = @"Please enable photos in your settings to scan QR codes from your camera roll.";
+        enablePhotos.text = NSLocalizedString(@"请在设置中启用相册", nil);
         enablePhotos.textAlignment = NSTextAlignmentCenter;
         enablePhotos.textColor = [UIColor whiteColor];
         [_photosView addSubview:enablePhotos];

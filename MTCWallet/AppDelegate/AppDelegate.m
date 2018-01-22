@@ -44,6 +44,8 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+//    [NSThread sleepForTimeInterval:1];
+    
     CachedDataStore *dataStore = [CachedDataStore sharedCachedDataStoreWithKey:CACHEKEY_APP_DATA];
     if ([dataStore stringForKey:CACHEKEY_APP_DATA_LANGUAGE].length) {
         [NSBundle setLanguage:[dataStore stringForKey:CACHEKEY_APP_DATA_LANGUAGE]];
@@ -75,7 +77,7 @@
                                         NSLocalizedString(@"导入钱包", @"Import Existing Account")
                                         ];
         OptionsVC *config = [OptionsVC optionWithHeading:heading subheading:nil messages:@[ICON_FONT_WALLET,ICON_FONT_IMPORT] options:options];
-        UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:config];
+        ZSBaseNavigationViewController *nav = [[ZSBaseNavigationViewController alloc] initWithRootViewController:config];
         self.window.rootViewController = nav;
         config.onOption = ^(OptionsVC *vc, NSUInteger index) {
             if (index == 0) {

@@ -10,6 +10,7 @@
 
 @interface TransactionDetailsViewController : ZSBasePageViewController
 
+- (instancetype)initWithWallet:(Wallet *)wallet;
 - (void)setAddress:(Address*)address blockNumber:(NSUInteger)blockNumber transactionInfo: (TransactionInfo *)transactionInfo;
 @property (nonatomic, readonly) Address *address;
 @property (nonatomic, readonly) TransactionInfo *transactionInfo;

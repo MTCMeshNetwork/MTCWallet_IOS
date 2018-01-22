@@ -409,6 +409,38 @@ NSString* queryifyTransaction(Transaction *transaction) {
     return etherPricePromise;
 }
 
+- (ArrayPromise *)getTokenBalance:(Address *)address {
+    if (!address) {
+        return [ArrayPromise rejected:[NSError errorWithDomain:ProviderErrorDomain code:ProviderErrorInvalidParameters userInfo:@{}]];
+    }
+    NSArray *tokens = @[[Erc20Token erc20Token:@"" symbol:@"ETH"],
+                        [Erc20Token erc20Token:@"0x8febf7551eea6ce499f96537ae0e2075c5a7301a" symbol:@"MTC"],
+                        [Erc20Token erc20Token:@"0x3ac6cb00f5a44712022a51fbace4c7497f56ee31" symbol:@"MESH"]];
+    NSArray *promises = @[[self getBalance:address],
+                          [self getToken:[Address addressWithString:@"0x8febf7551eea6ce499f96537ae0e2075c5a7301a"] balanceOf:address],
+                          [self getToken:[Address addressWithString:@"0x3ac6cb00f5a44712022a51fbace4c7497f56ee31"] balanceOf:address]];
+    return [ArrayPromise promiseWithSetup:^(Promise * promise) {
+        [[Promise all:promises] onCompletion:^(ArrayPromise *tokenBalancePromise) {
+            if (tokenBalancePromise.error) {
+                [promise reject:[NSError errorWithDomain:PromiseErrorDomain code:ProviderErrorBadResponse userInfo:tokenBalancePromise.error.userInfo]];
+                return;
+            }
+            for (int i = 0; i < tokens.count; i++) {
+                Erc20Token *token = [tokens objectAtIndex:i];
+                token.balance = [tokenBalancePromise.value objectAtIndex:i];
+            }
+            [promise resolve:tokens];
+        }];
+    }];
+}
+
+- (BigNumberPromise *)getToken:(Address *)contractAddress  balanceOf:(Address *)address {
+    if (!address || !contractAddress ) {
+        return [BigNumberPromise rejected:[NSError errorWithDomain:ProviderErrorDomain code:ProviderErrorInvalidParameters userInfo:@{}]];
+    }
+    return [self promiseFetch:[NSString stringWithFormat:@"/api?module=account&action=tokenbalance&contractaddress=%@&address=%@&tag=latest", contractAddress, address]
+                    fetchType:ApiProviderFetchTypeBigNumberDecimal];
+}
 
 #pragma mark - NSObject
 

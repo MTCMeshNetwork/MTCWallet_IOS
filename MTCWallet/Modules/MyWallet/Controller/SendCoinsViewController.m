@@ -25,7 +25,7 @@ typedef NS_ENUM(NSInteger, TransferAccountsType) {
     TransferAccountsType_GasSection,       //Gas
     TransferAccountsType_NetworkSection,   //network
     TransferAccountsType_TotalCostSection, //总计耗费
-    TransferAccountsType_PasWordSection,   //交易密码
+    TransferAccountsType_PasWordSection,   //钱包密码
     TransferAccountsType_ConfirmSection,   //确认转账
     TransferAccountsTypeMaxSection,
 };
@@ -70,11 +70,9 @@ typedef NS_ENUM(NSInteger, TransferAccountsType) {
                 return ;
             }
             _gasPriceEstimate = promise.value;
-            if (_gasPrice == nil) {
-                _gasPrice = [_gasPriceEstimate div:[BigNumber bigNumberWithDecimalString:@"1000000000"]].decimalString;
-                [self updateTotalCostData];
-                [self.tableView reloadData];
-            }
+            self.gasPrice = [_gasPriceEstimate div:[BigNumber bigNumberWithDecimalString:@"1000000000"]].decimalString;
+            [self updateTotalCostData];
+            [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:TransferAccountsType_AwardSection] withRowAnimation:UITableViewRowAnimationAutomatic];
         }];
         
                        
@@ -84,15 +82,17 @@ typedef NS_ENUM(NSInteger, TransferAccountsType) {
         _transaction.chainId = _signer.provider.chainId;
         _transaction.nonce = _signer.transactionCount;
         //默认20Gwei，21000gas
-        _transaction.gasPrice = [BigNumber bigNumberWithDecimalString:@"20000000000"];
+//        _transaction.gasPrice = [BigNumber bigNumberWithDecimalString:@"20000000000"];
 //        _transaction.gasLimit = [BigNumber bigNumberWithDecimalString:@"21000"];
+        self.gasPrice = @"20";
+        self.gasLimit = [_wallet activeToken].address?@"60000":@"25200";
     }
     return self;
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.navigationItem.title = [[_wallet activeToken].symbol stringByAppendingString:NSLocalizedString(@" 转账",nil)];
+    self.navigationItem.title = [[_wallet activeToken].symbol stringByAppendingString:NSLocalizedString(@"  转账",nil)];
     [self.view setBackgroundColor:[UIColor commonBackgroundColor]];
     // 设置导航栏颜色
     [self wr_setNavBarBarTintColor:[UIColor commonBackgroundColor]];
@@ -199,13 +199,13 @@ typedef NS_ENUM(NSInteger, TransferAccountsType) {
     }
     
     if (kStringIsEmpty(self.password)) {
-        showMessage(showTypeError, NSLocalizedString(@"请输入交易密码", nil));
+        showMessage(showTypeError, NSLocalizedString(@"请输入钱包密码", nil));
         return;
     }
     
     //BigNumber *fee = [_transaction.gasLimit mul:_transaction.gasPrice];
     if ([_wallet activeToken].address != nil) {
-        //仅设置一次
+        //仅当合约交易时候才设置，并且只有data不存在、改变时处理
         if (!_transaction.data.length) {
             SecureData *data = [SecureData secureDataWithCapacity:68];
             [data appendData:[SecureData hexStringToData:@"0xa9059cbb"]];
@@ -232,13 +232,15 @@ typedef NS_ENUM(NSInteger, TransferAccountsType) {
             __weak typeof(self) weakSelf = self;
             showMessage(showTypeStatus, NSLocalizedString(@"费用核算中...", nil));
             [self estimateGas:^(BigNumber *gas) {
-                if (_gasLimit.length&&![self safeGasLimit]) {
-                    NSString *str = [NSString stringWithFormat:@"%@ %@",NSLocalizedString(@"Gas Limit太低,建议：", nil),_fuzzyEstimate.decimalString];
-                    showMessage(showTypeError, str);
-                }else {
-                    showMessage(showTypeNone, nil);
+                if (![self safeGasLimit]) {
+                    NSString *str = [NSString stringWithFormat:@"%@ %@",NSLocalizedString(@"Gas Limit太低,已改为最低预估:", nil),_fuzzyEstimate.decimalString];
+                    self.gasLimit = _fuzzyEstimate.decimalString;
                     _transaction.gasLimit = _fuzzyEstimate;
                     [weakSelf updateTotalCostData];
+                    [weakSelf.tableView reloadSections:[NSIndexSet indexSetWithIndex:TransferAccountsType_GasSection] withRowAnimation:UITableViewRowAnimationAutomatic];
+                    showMessage(showTypeError, str);
+                    _feeReady = NO;
+                }else {
                     [weakSelf checkParam];
                 }
             }];
@@ -255,8 +257,8 @@ typedef NS_ENUM(NSInteger, TransferAccountsType) {
     }
     
         
-    if ([[self totalValue] compare:_signer.balance] != NSOrderedDescending) {
-        if (_gasEstimate.integerValue!=21000&&![self safeGasLimit]) {
+    if ([_transaction.value compare:_signer.balance] != NSOrderedDescending) {
+        if (_gasEstimate.integerValue!=25200&&![self safeGasLimit]) {
             showMessage(showTypeError, NSLocalizedString(@"Gas Limit太低", nil));
             return;
         }else {
@@ -266,14 +268,14 @@ typedef NS_ENUM(NSInteger, TransferAccountsType) {
         showMessage(showTypeError, NSLocalizedString(@"余额不足", nil));
         return;
     }
-    //验证交易密码
+    //验证钱包密码
     [SVProgressHUD showWithStatus:NSLocalizedString(@"密码验证中...", nil)];
     [_signer unlockPassword:self.password callback:^(Signer *signer, NSError *error) {
         
         [SVProgressHUD dismiss];
         // Expired unlock request
         if (error) {
-            showMessage(showTypeError, NSLocalizedString(@"交易密码错误", nil));
+            showMessage(showTypeError, NSLocalizedString(@"钱包密码错误", nil));
             
         } else {
             [self sendTransaction];
@@ -286,9 +288,13 @@ typedef NS_ENUM(NSInteger, TransferAccountsType) {
     
             [[_signer.provider estimateGas:_transaction] onCompletion:^(BigNumberPromise *promise) {
                 if (promise.error) {
-                    NSString *reason = [promise.error.userInfo valueForKey:@"reason"];
-                    showMessage(showTypeError, reason?:promise.error.localizedDescription);
-                    return;
+//                    NSString *reason = [promise.error.userInfo valueForKey:@"reason"];
+//                    showMessage(showTypeError, reason?:promise.error.localizedDescription);
+//                    return;
+                    _gasEstimate = [BigNumber bigNumberWithDecimalString:@"60000"];
+                    _feeReady = YES;
+                    block(_gasEstimate);
+                    return ;
                 }
                 _gasEstimate = promise.value;
                 _feeReady = YES;
@@ -343,16 +349,17 @@ typedef NS_ENUM(NSInteger, TransferAccountsType) {
     return [Payment parseEther:text];
 }
 
-- (BigNumber*)totalValue {
-    return [[_transaction.gasLimit mul:_transaction.gasPrice] add:_transaction.value?:[BigNumber constantZero]];
-}
+//- (BigNumber*)totalValue {
+//    return [[_transaction.gasLimit mul:_transaction.gasPrice] add:_transaction.value?:[BigNumber constantZero]];
+//}
 
 #pragma mark ============  确认转账
 - (void)sendTransaction {
     __weak typeof(self) weakSelf = self;
     [_signer send:weakSelf.transaction callback:^(Transaction *transaction, NSError *error) {
         if (error) {
-            showMessage(showTypeError, NSLocalizedString([@"失败：" stringByAppendingString:error.localizedDescription],nil));
+            NSString *tip = [NSString stringWithFormat:@"%@ %@",NSLocalizedString(@"失败",nil),error.localizedDescription];
+            showMessage(showTypeError, tip);
         } else {
             // Lock the signer
             [weakSelf.signer lock];
@@ -361,20 +368,20 @@ typedef NS_ENUM(NSInteger, TransferAccountsType) {
     }];
 }
 
-- (NSString*)getFiatValue: (BigNumber*)wei {
-    float costFiat = [[Payment formatEther:wei] doubleValue];//[[Payment formatEther:wei] doubleValue] * [_wallet etherPrice];
+- (NSString*)getFiatValue {
+    NSString *totalValue = self.count?:@"0";//[[Payment formatEther:wei] doubleValue] * [_wallet etherPrice];
 //    if (costFiat > 100) {
 //        return [NSString stringWithFormat:@"%.0f ETH", costFiat];
 //    }
-    return [NSString stringWithFormat:@"%.8f %@", costFiat,[_wallet activeToken].symbol];
+    return [NSString stringWithFormat:@"%@ %@\nGas:%@ ETH", totalValue,[_wallet activeToken].symbol,[Payment formatEther:[_transaction.gasPrice mul:_transaction.gasLimit]]];
 }
 
 
 #pragma mark -- 动态刷新 “总计耗费”
 - (void)updateTotalCostData {
-    if (_transaction.value && _transaction.gasPrice && _transaction.gasLimit) {
-        BigNumber *totalCost = [self totalValue];
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"updateTotalCostData" object:[self getFiatValue:totalCost]];
+    if (_transaction.value && self.gasPrice && self.gasLimit) {
+//        BigNumber *totalCost = [self totalValue];
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"updateTotalCostData" object:[self getFiatValue]];
     }
 }
 
@@ -409,7 +416,7 @@ typedef NS_ENUM(NSInteger, TransferAccountsType) {
                 return 10;
                 
             default:
-                return 30;
+                return 35;
         }
     }
     
@@ -423,14 +430,14 @@ typedef NS_ENUM(NSInteger, TransferAccountsType) {
         case TransferAccountsType_PasWordSection:
             return 10;
     }
-    return 30;
+    return 35;
 }
 
 //区头的字体颜色设置
 -(void)tableView:(UITableView *)tableView willDisplayHeaderView:(UIView *)view forSection:(NSInteger)section
 {
     UITableViewHeaderFooterView *header = (UITableViewHeaderFooterView *)view;
-    header.textLabel.textColor = [UIColor whiteColor];
+    header.textLabel.textColor = [UIColor commonWhiteColor];
 //    header.textLabel.font = [UIFont systemFontOfSize:14.0f];
     header.textLabel.font = [UIFont fontWithName:@"Helvetica-Bold" size:14.0];
     header.contentView.backgroundColor = [UIColor commonBackgroundColor];
@@ -524,7 +531,7 @@ typedef NS_ENUM(NSInteger, TransferAccountsType) {
         case TransferAccountsType_GasPriceSection:
         {
             [cell setTransferAccountsTableViewCellType:TableViewCellType_None];
-            cell.txtField.placeholder = NSLocalizedString(@"填入Gas Price,推荐范围(20~100)Gwei",nil);
+            cell.txtField.placeholder = NSLocalizedString(@"自定义Gas Price,一般为(20~100)Gwei",nil);
             cell.txtField.keyboardType = UIKeyboardTypeDecimalPad;
             if (cell.txtField.text) {
                 cell.txtField.text = self.gasPrice;
@@ -535,7 +542,7 @@ typedef NS_ENUM(NSInteger, TransferAccountsType) {
         case TransferAccountsType_GasSection:
         {
             [cell setTransferAccountsTableViewCellType:TableViewCellType_None];
-            cell.txtField.placeholder = NSLocalizedString(@"填入Gas Limit，ETH转账固定21000，代币或合约按需填写",nil);
+            cell.txtField.placeholder = NSLocalizedString(@"自定义Gas Limit,ETH转账为21000,代币或合约按需填写",nil);
             cell.txtField.keyboardType = UIKeyboardTypeNumberPad;
             if (cell.txtField.text) {
                 cell.txtField.text = self.gasLimit;
@@ -591,9 +598,13 @@ typedef NS_ENUM(NSInteger, TransferAccountsType) {
 
             scanVC.block = ^(NSString *address) {
                 self.address = address;
+                self.count = [Payment formatEther:weakScanner.foundAmount];
 
                 NSIndexSet *indexSet=[[NSIndexSet alloc] initWithIndex:TransferAccountsType_AddressSection];
                 [self.tableView reloadSections:indexSet withRowAnimation:UITableViewRowAnimationAutomatic];
+                indexSet=[[NSIndexSet alloc] initWithIndex:TransferAccountsType_CountSection];
+                [self.tableView reloadSections:indexSet withRowAnimation:UITableViewRowAnimationAutomatic];
+                [self updateTotalCostData];
             };
             break;
         }
@@ -643,7 +654,7 @@ typedef NS_ENUM(NSInteger, TransferAccountsType) {
 - (UITableViewCell *)setTransferAccountsPasswordTableViewCell:(NSIndexPath *)indexPath {
     TransferAccountsPasswordTableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:[TransferAccountsPasswordTableViewCell at_identifier]];
     cell.txtField.indexPath = indexPath;
-    cell.txtField.placeholder = NSLocalizedString(@"填入交易密码",nil);
+    cell.txtField.placeholder = NSLocalizedString(@"填入钱包密码",nil);
     [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
     
     return cell;
@@ -665,11 +676,13 @@ typedef NS_ENUM(NSInteger, TransferAccountsType) {
     UILabel *txtLb = [UILabel new];
     [cell.contentView addSubview:txtLb];
     txtLb.text = NSLocalizedString(@"确认转账",nil);
-    txtLb.textColor = [UIColor whiteColor];
+    txtLb.textColor = [UIColor commonWhiteColor];
     txtLb.textAlignment = NSTextAlignmentCenter;
-    txtLb.backgroundColor = [UIColor commonGreenColor];
+    txtLb.backgroundColor = [UIColor commonCellcolor];
+    txtLb.layer.masksToBounds = YES;
+    txtLb.layer.cornerRadius = 5.0f;
     [txtLb mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.edges.equalTo(cell.contentView).insets(UIEdgeInsetsMake(0, 15, 40, 15));
+        make.edges.equalTo(cell.contentView).insets(UIEdgeInsetsMake(0, 20, 30, 20));
     }];
     return cell;
 }

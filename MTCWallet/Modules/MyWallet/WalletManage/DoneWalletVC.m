@@ -37,7 +37,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.tableView.backgroundColor = [UIColor commonTextColor];
+    self.tableView.backgroundColor = [UIColor mainThemeColor];
     self.tableView.contentInset = UIEdgeInsetsMake(-20, 0, 0, 0);
     
     __weak DoneWalletVC *weakSelf = self;
@@ -64,8 +64,8 @@
     BlockButton *button = [BlockButton buttonWithType:UIButtonTypeCustom];
     button.userInteractionEnabled = NO;
     button.titleLabel.font = [UIFont systemFontOfSize:25];
-    [button setImage:[UIImage iconWithInfo:IconInfoMake(ICON_FONT_DONE, 40, [UIColor greenColor])] forState:UIControlStateNormal];
-    [button setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [button setImage:[UIImage iconWithInfo:IconInfoMake(ICON_FONT_DONE, 40, [UIColor commonOrangeTextColor])] forState:UIControlStateNormal];
+    [button setTitleColor:[UIColor commonOrangeTextColor] forState:UIControlStateNormal];
     
     [button setTitle:NSLocalizedString(@" 创建成功", nil) forState:UIControlStateNormal];
     [headView addSubview:button];
@@ -91,7 +91,7 @@
     button = [BlockButton buttonWithType:UIButtonTypeCustom];
     button.titleLabel.font = [UIFont fontWithName:@"iconfont" size:30];
     [button setTitle:ICON_FONT_COPY forState:UIControlStateNormal];
-    [button setTitleColor:[UIColor commonDarkGrayTextColor] forState:UIControlStateNormal];
+    [button setTitleColor:[UIColor commonWhiteColor] forState:UIControlStateNormal];
     [button handleControlEvent:UIControlEventTouchUpInside withBlock:^{
         [[UIPasteboard generalPasteboard] setString:_account.address.checksumAddress];
         showMessage(showTypeSuccess, NSLocalizedString(@"复制成功", nil));
@@ -147,7 +147,7 @@
     
 //    UILabel *pwdLbl = [[UILabel alloc] init];
 //    pwdLbl.textColor = [UIColor whiteColor];
-//    pwdLbl.text = [NSString stringWithFormat:@"%@ %@",NSLocalizedString(@"交易密码", nil),_password];
+//    pwdLbl.text = [NSString stringWithFormat:@"%@ %@",NSLocalizedString(@"钱包密码", nil),_password];
 //    [headView addSubview:pwdLbl];
 //    [pwdLbl mas_makeConstraints:^(MASConstraintMaker *make) {
 //        make.left.equalTo(lbl);
@@ -188,7 +188,7 @@
             }
         }];
     }];
-    [backup setBackgroundColor:COLOR_GREEN];
+    [backup setBackgroundColor:[UIColor commonOrangeTextColor]];
     backup.layer.cornerRadius = 5;
     [backup setTitle:NSLocalizedString(@"备份/导出钱包", nil) forState:UIControlStateNormal];
     [bottomView addSubview:backup];
@@ -212,10 +212,10 @@
     }];
     
     UILabel *tipLbl = [[UILabel alloc] init];
-    [tipLbl setTextColor:COLOR_WARNING];
+    [tipLbl setTextColor:[UIColor commonOrangeTextColor]];
     tipLbl.numberOfLines = 0;
     tipLbl.font = [UIFont systemFontOfSize:15];
-    tipLbl.text = NSLocalizedString(@"强烈建议备份并妥善保管MTC秘钥和钱包交易密码，否则一旦丢失将无法找回！", nil);
+    tipLbl.text = NSLocalizedString(@"强烈建议备份并妥善保管MTC秘钥和钱包钱包密码，否则一旦丢失将无法找回！", nil);
     [bottomView addSubview:tipLbl];
     [tipLbl mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.equalTo(backup);

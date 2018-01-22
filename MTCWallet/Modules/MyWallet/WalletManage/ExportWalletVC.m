@@ -50,7 +50,7 @@
             break;
         case ExportTypePrivateKey:
             vc.title = NSLocalizedString(@"导出明文私钥", nil);
-            [vc loadTitle:NSLocalizedString(@"安全警告：私钥未经加密，导出存在风险，建议使用助记词和Keystore进行备份。", nil)
+            [vc loadTitle:NSLocalizedString(@"安全警告：数据未经加密，截屏导出存在风险，建议使用Keystore进行备份。", nil)
                  subTitle:nil
                   content:content
               buttonTitle:NSLocalizedString(@"复制明文私钥", nil)];
@@ -58,16 +58,29 @@
     }
     return vc;
 }
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(userDidTakeScreenshot:)
+                                                 name:UIApplicationUserDidTakeScreenshotNotification object:nil];
+}
+
+- (void)userDidTakeScreenshot:(NSNotification *)notification {
+    showMessage(showTypeError, @"安全警告：数据未经加密，截屏导出存在风险，建议使用Keystore进行备份。")
+}
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     self.navigationController.navigationBarHidden = NO;
-    self.view.backgroundColor = [UIColor colorWithWhite:0x50/255. alpha:1];
+    self.view.backgroundColor = [UIColor mainThemeColor];
     self.tableView.tableFooterView = [UIView new];
     
-    [self wr_setNavBarTintColor:[UIColor whiteColor]];
-    [self wr_setNavBarTitleColor:[UIColor whiteColor]];
-    [self wr_setNavBarBarTintColor:[UIColor colorWithWhite:0x50/255.0 alpha:1]];
+    [self wr_setNavBarBarTintColor:[UIColor mainThemeColor]];
+    [self wr_setNavBarBackgroundAlpha:1];
+    [self wr_setNavBarTitleColor:[UIColor commonWhiteColor]];
 }
 
 #pragma mark - **************** UI
@@ -110,7 +123,7 @@
     }
     
     UIView *bg = [UIView new];
-    bg.backgroundColor = [UIColor colorWithWhite:0xf2/255. alpha:1];;
+    bg.backgroundColor = [UIColor commonWhiteColor];
     [contentView addSubview:bg];
     
     UITextView *txt = [UITextView new];
@@ -181,7 +194,7 @@
     }
     
     UIView *bgView = [UIView new];
-    bgView.backgroundColor = [UIColor colorWithWhite:0x50/255. alpha:1];
+    bgView.backgroundColor = [UIColor mainThemeColor];
     [contentView addSubview:bgView];
     [bgView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(optionView.mas_bottom).offset(20);
@@ -191,7 +204,7 @@
     BlockButton *copybutton = [BlockButton buttonWithType:UIButtonTypeCustom];
     [copybutton setTitle:buttonTitle forState:UIControlStateNormal];
     copybutton.layer.cornerRadius = 5;
-    [copybutton setBackgroundColor:COLOR_GREEN];
+    [copybutton setBackgroundColor:[UIColor commonOrangeTextColor]];
     [contentView addSubview:copybutton];
     [copybutton mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.top.right.equalTo(bgView).insets(UIEdgeInsetsMake(20, 30, 0, 30));
@@ -237,7 +250,7 @@
 
 - (CGSize)getSizeByString:(NSString*)string AndFontSize:(CGFloat)font{
     CGSize size=[string boundingRectWithSize:CGSizeMake(999, 25) options:NSStringDrawingTruncatesLastVisibleLine | NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:font]} context:nil].size;
-    size.width += 5;
+    size.width += 8;
     return size;
 }
 

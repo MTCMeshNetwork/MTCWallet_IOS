@@ -28,7 +28,7 @@
         self.txtField.placeholder = NSLocalizedString(@"请填入...",nil);
         self.txtField.delegate = self;
         // "通过KVC修改占位文字的颜色"
-        [self.txtField setValue:[UIColor commonWhiteColor] forKeyPath:@"_placeholderLabel.textColor"];
+        [self.txtField setValue:[UIColor commonlightGrayTextColor] forKeyPath:@"_placeholderLabel.textColor"];
 
         [self.txtField mas_makeConstraints:^(MASConstraintMaker *make) {
             make.left.equalTo(self.contentView).offset(15);
@@ -56,7 +56,7 @@
             
         case TableViewCellType_Image:
         {
-            self.scanImgView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"scan"]];
+            self.scanImgView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Scanning_icon"]];
             [self.contentView addSubview:self.scanImgView];
             [self.scanImgView mas_makeConstraints:^(MASConstraintMaker *make) {
                 make.right.equalTo(self.contentView).offset(-10);
@@ -163,7 +163,7 @@
 #pragma mark ========= network
 @interface TransferAccountsNetWorkTableViewCell ()
 
-@property (nonatomic, strong) UILabel *netLb;
+//@property (nonatomic, strong) UILabel *netLb;
 @property (nonatomic, strong) UILabel *advanceLb;
 @property (nonatomic, strong) UISegmentedControl *segmentedControl;
 @property (nonatomic, strong) ZSCustomButton *selectbutton;
@@ -176,14 +176,14 @@
         
         [self.contentView setBackgroundColor:[UIColor commonBackgroundColor]];
         
-        [self.contentView addSubview:self.netLb];
+//        [self.contentView addSubview:self.netLb];
         [self.contentView addSubview:self.advanceLb];
         [self.contentView addSubview:self.segmentedControl];
         
-        [self.netLb mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.left.equalTo(self.contentView).offset(15);
-            make.centerY.equalTo(self.contentView);
-        }];
+//        [self.netLb mas_makeConstraints:^(MASConstraintMaker *make) {
+//            make.left.equalTo(self.contentView).offset(15);
+//            make.centerY.equalTo(self.contentView);
+//        }];
         
         [self.segmentedControl mas_makeConstraints:^(MASConstraintMaker *make) {
             make.right.equalTo(self.contentView).offset(-15);
@@ -235,15 +235,15 @@
 }
 
 #pragma mark - Init
-- (UILabel *)netLb {
-    if (!_netLb) {
-        _netLb = [UILabel new];
-        _netLb.text = @"Network";
-        _netLb.textColor = [UIColor commonWhiteColor];
-        _netLb.font = [UIFont systemFontOfSize:14.0f];
-    }
-    return _netLb;
-}
+//- (UILabel *)netLb {
+//    if (!_netLb) {
+//        _netLb = [UILabel new];
+//        _netLb.text = @"Network";
+//        _netLb.textColor = [UIColor commonWhiteColor];
+//        _netLb.font = [UIFont systemFontOfSize:14.0f];
+//    }
+//    return _netLb;
+//}
 
 - (UILabel *)advanceLb {
     if (!_advanceLb) {
@@ -286,8 +286,8 @@
         
         self.totalLb = [UILabel new];
         [self.contentView addSubview:self.totalLb];
-        self.totalLb.text = @"总计耗费";
-        self.totalLb.textColor = [UIColor whiteColor];
+        self.totalLb.text = NSLocalizedString(@"总计耗费", nil);
+        self.totalLb.textColor = [UIColor commonlightGrayTextColor];
         self.totalLb.font = [UIFont systemFontOfSize:20.0f];
         [self.totalLb mas_makeConstraints:^(MASConstraintMaker *make) {
             make.left.equalTo(self.contentView).offset(15);
@@ -297,8 +297,10 @@
         self.costLb = [UILabel new];
         [self.contentView addSubview:self.costLb];
         self.costLb.text = @"0.0";
-        self.costLb.textColor = [UIColor whiteColor];
-        self.costLb.font = [UIFont systemFontOfSize:20.0f];
+        self.costLb.numberOfLines = 2;
+        self.costLb.textColor = [UIColor commonlightGrayTextColor];
+        self.costLb.font = [UIFont systemFontOfSize:13.0f];
+        self.costLb.textAlignment = NSTextAlignmentRight;
         [self.costLb mas_makeConstraints:^(MASConstraintMaker *make) {
             make.right.equalTo(self.contentView).offset(-15);
             make.centerY.equalTo(self.contentView);
@@ -316,7 +318,7 @@
 }
 @end
 
-#pragma mark ========= 交易密码
+#pragma mark ========= 钱包密码
 @interface TransferAccountsPasswordTableViewCell ()
 
 @property (nonatomic, strong) UILabel *pwLb;
@@ -330,9 +332,9 @@
         
         self.pwLb = [UILabel new];
         [self.contentView addSubview:self.pwLb];
-        self.pwLb.backgroundColor = [UIColor commonRedColor];
+        self.pwLb.backgroundColor = [UIColor commonOrangeTextColor];
         self.pwLb.text = NSLocalizedString(@"密码",nil);
-        self.pwLb.textColor = [UIColor whiteColor];
+        self.pwLb.textColor = [UIColor commonWhiteColor];
         self.pwLb.font = [UIFont systemFontOfSize:15.0f];
         self.pwLb.textAlignment = NSTextAlignmentCenter;
         [self.pwLb mas_makeConstraints:^(MASConstraintMaker *make) {

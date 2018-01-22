@@ -14,15 +14,16 @@
 #import "Utilities.h"
 #import "UIImage+IconFont.h"
 
-@interface ReceiveCoinsViewController ()
+@interface ReceiveCoinsViewController ()<UITextFieldDelegate>
 
 @property (nonatomic, strong) UILabel *ownLb;
-@property (nonatomic, strong) UILabel *walletAddressLb;
+@property (nonatomic, strong) UILabel *amountLb;
+@property (nonatomic, strong) UITextField *amountTf;
 @property (nonatomic, strong) UILabel *addressLb;
-@property (nonatomic, strong) UILabel *addressIconLb;
-@property (nonatomic, strong) UIView *lineView;
-@property (nonatomic, strong) UILabel *QRCodeLb;
+@property (nonatomic, strong) UIView *amountView;
+@property (nonatomic, strong) UILabel *symbolLb;
 @property (nonatomic, strong) UIImageView *QRCodeImgView;
+@property (nonatomic, strong) UIButton *copyButton;
 @end
 
 @implementation ReceiveCoinsViewController
@@ -30,8 +31,6 @@
 - (instancetype)initWithWallet:(Wallet*)wallet {
     if (self = [super initWithNibName:nil bundle:nil]) {
         _wallet = wallet;
-        
-        NSLog(@"%ld",[_wallet numberOfAccounts]);
     }
     return self;
 }
@@ -45,9 +44,7 @@
 
 #pragma make - Private Method
 - (void)configElements {
-    // 设置导航栏颜色
-    [self wr_setNavBarBarTintColor:[UIColor commonGreenColor]];
-    [self wr_setNavBarTitleColor:[UIColor whiteColor]];
+    
     self.title = NSLocalizedString(@"收款地址",nil);
     
 //    self.navigationItem.rightBarButtonItem = [UIBarButtonItem itemWithImageNamed:@"share" targe:self action:@selector(shareClick)];
@@ -59,51 +56,68 @@
     }
     
     [self.view addSubview:self.ownLb];
-    [self.view addSubview:self.walletAddressLb];
+    [self.view addSubview:self.amountView];
+    [self.view addSubview:self.amountLb];
     [self.view addSubview:self.addressLb];
-    [self.view addSubview:self.addressIconLb];
-    [self.view addSubview:self.lineView];
-    [self.view addSubview:self.QRCodeLb];
+    [self.view addSubview:self.amountTf];
+    [self.view addSubview:self.symbolLb];
     [self.view addSubview:self.QRCodeImgView];
+    [self.view addSubview:self.copyButton];
     
     [self.ownLb mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.equalTo(self.view);
         make.top.equalTo(self.view).offset(NAVIGATION_BAR_HEIGHT);
-        make.height.mas_offset(60);
-    }];
-    
-    [self.walletAddressLb mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.ownLb.mas_bottom).offset(20);
-        make.left.equalTo(self.view).offset(15);
     }];
     
     [self.addressLb mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.walletAddressLb.mas_bottom).offset(10);
+        make.top.equalTo(self.ownLb.mas_bottom).offset(10);
         make.left.equalTo(self.view).offset(15);
-        make.right.equalTo(self.addressIconLb.mas_left).offset(-5);
-    }];
-    
-    [self.addressIconLb mas_makeConstraints:^(MASConstraintMaker *make) {
         make.right.equalTo(self.view).offset(-15);
-        make.top.equalTo(self.walletAddressLb.mas_top);
-        make.size.mas_equalTo(CGSizeMake(35, 35));
     }];
     
-    [self.lineView mas_makeConstraints:^(MASConstraintMaker *make) {
+    
+//    UIView *lineView = [[UIView alloc] init];
+//    lineView.backgroundColor = [UIColor commonGreenColor];
+//    [self.view addSubview:lineView];
+//    [lineView mas_makeConstraints:^(MASConstraintMaker *make) {
+//        make.left.right.equalTo(self.view);
+//        make.height.equalTo(@8);
+//        make.top.equalTo(self.addressLb.mas_bottom).offset(25);
+//    }];
+    
+    [self.amountView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.addressLb.mas_bottom).offset(24);
         make.left.right.equalTo(self.view);
-        make.top.equalTo(self.addressLb.mas_bottom).offset(20);
-        make.height.mas_equalTo(@1);
+        make.height.equalTo(@60);
     }];
-
-    [self.QRCodeLb mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.lineView.mas_bottom).offset(15);
-        make.left.equalTo(self.view).offset(15);
+    
+    [self.amountLb mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.top.bottom.equalTo(self.amountView);
+        make.width.equalTo(@80);
+    }];
+    
+    [self.symbolLb mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.bottom.equalTo(self.amountView);
+        make.width.equalTo(@60);
+        make.right.equalTo(self.amountView).offset(-15);
+    }];
+    
+    [self.amountTf mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(self.amountLb.mas_right);
+        make.right.equalTo(self.symbolLb.mas_left).offset(-10);
+        make.top.bottom.equalTo(self.amountView);
     }];
 
     [self.QRCodeImgView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.QRCodeLb.mas_bottom).offset(20);
+        make.top.equalTo(self.amountView.mas_bottom).offset(30);
         make.centerX.equalTo(self.view);
         make.size.mas_equalTo(CGSizeMake(ScreenWidth-100, ScreenWidth-100));
+    }];
+    
+    [self.copyButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.top.equalTo(self.QRCodeImgView.mas_bottom).offset(30);
+        make.left.right.equalTo(self.view);
+        make.height.equalTo(@60);
     }];
 
 }
@@ -111,48 +125,7 @@
 #pragma mark - Private Method
 // 分享
 - (void)shareClick {
-    
-    NSMutableDictionary *shareParams = [NSMutableDictionary dictionary];
-    
-    NSArray* imageArray = @[[UIImage imageNamed:@"set"]];
-    
-    NSString* desc = [NSString stringWithFormat:NSLocalizedString(@"啦啦啦啦啦啦啦",nil)];
-    
-    [shareParams SSDKSetupShareParamsByText:desc
-                                     images:imageArray
-                                        url:[NSURL URLWithString:@"http://baidu.com"]
-                                      title:NSLocalizedString(@"分享给你",nil)
-                                       type:SSDKContentTypeWebPage];
-    
-    [shareParams SSDKEnableUseClientShare];
-    
-    [ShareSDK showShareActionSheet:nil items:nil shareParams:shareParams onShareStateChanged:^(SSDKResponseState state, SSDKPlatformType platformType, NSDictionary *userData, SSDKContentEntity *contentEntity, NSError *error, BOOL end) {
-        
-        switch (state) {
-            case SSDKResponseStateSuccess:
-            {
-                UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"分享成功",nil)
-                                                                    message:nil
-                                                                   delegate:nil
-                                                          cancelButtonTitle:NSLocalizedString(@"确定",nil)
-                                                          otherButtonTitles:nil];
-                [alertView show];
-                break;
-            }
-            case SSDKResponseStateFail:
-            {
-                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"分享失败",nil)
-                                                                message:[NSString stringWithFormat:@"%@",error]
-                                                               delegate:nil
-                                                      cancelButtonTitle:@"OK"
-                                                      otherButtonTitles:nil, nil];
-                [alert show];
-                break;
-            }
-            default:
-                break;
-        }
-    }];
+    //to do
 }
 
 - (void)didReceiveMemoryWarning {
@@ -164,23 +137,49 @@
 - (UILabel *)ownLb {
     if (!_ownLb) {
         _ownLb = [UILabel new];
-        _ownLb.textColor = [UIColor whiteColor];
-        _ownLb.font = [UIFont systemFontOfSize:22.0f];
+        _ownLb.textColor = [UIColor commonOrangeTextColor];
+        _ownLb.font = [UIFont systemFontOfSize:25.0f];
         _ownLb.text = @"My Wallet";
         _ownLb.textAlignment = NSTextAlignmentCenter;
-        _ownLb.backgroundColor = [UIColor commonGreenColor];
+        _ownLb.backgroundColor = [UIColor mainThemeColor];
     }
     return _ownLb;
 }
 
-- (UILabel *)walletAddressLb {
-    if (!_walletAddressLb) {
-        _walletAddressLb = [UILabel new];
-        _walletAddressLb.text = NSLocalizedString(@"钱包地址",nil);
-        _walletAddressLb.textColor = [UIColor whiteColor];
-        _walletAddressLb.font = [UIFont systemFontOfSize:15.0f];
+- (UILabel *)amountLb {
+    if (!_amountLb) {
+        _amountLb = [UILabel new];
+        _amountLb.text = NSLocalizedString(@"收款金额",nil);
+        _amountLb.textColor = [UIColor whiteColor];
+        _amountLb.backgroundColor = [UIColor commonBlueColor];
+        _amountLb.textAlignment = NSTextAlignmentCenter;
+        _amountLb.font = [UIFont systemFontOfSize:15.0f];
     }
-    return _walletAddressLb;
+    return _amountLb;
+}
+
+- (UILabel *)symbolLb {
+    if (!_symbolLb) {
+        _symbolLb = [UILabel new];
+        _symbolLb.text = _wallet.activeToken.symbol;
+        _symbolLb.textColor = [UIColor whiteColor];
+        _symbolLb.font = [UIFont systemFontOfSize:15.0f];
+    }
+    return _symbolLb;
+}
+
+- (UITextField *)amountTf {
+    if (!_amountTf) {
+        _amountTf = [UITextField new];
+        _amountTf.placeholder = NSLocalizedString(@"收款数量",nil);
+        [_amountTf setValue:[UIColor commonlightGrayTextColor] forKeyPath:@"_placeholderLabel.textColor"];
+        _amountTf.textColor = [UIColor whiteColor];
+        _amountTf.font = [UIFont systemFontOfSize:15.0f];
+        _amountTf.textAlignment = NSTextAlignmentRight;
+        _amountTf.keyboardType = UIKeyboardTypeDecimalPad;
+        [_amountTf addTarget:self action:@selector(textFieldTextChanged:) forControlEvents:UIControlEventEditingChanged];
+    }
+    return _amountTf;
 }
 
 - (UILabel *)addressLb {
@@ -188,48 +187,57 @@
         _addressLb = [UILabel new];
         _addressLb.textColor = [UIColor whiteColor];
         _addressLb.font = [UIFont systemFontOfSize:13.0f];
-        _addressLb.text = NSLocalizedString(@"请先新建钱包！",nil);
+//        _addressLb.text = NSLocalizedString(@"请先新建钱包！",nil);
         _addressLb.lineBreakMode = NSLineBreakByTruncatingMiddle;
+        _addressLb.textAlignment = NSTextAlignmentCenter;
     }
     return _addressLb;
 }
 
-- (UILabel *)addressIconLb {
-    if (!_addressIconLb) {
-        _addressIconLb = [UILabel new];
-        _addressIconLb.userInteractionEnabled = YES;
-//        _addressIconLb.text = ICON_FONT_COPY;
-        _addressIconLb.textColor = [UIColor whiteColor];
-        [_addressIconLb setFont:[UIFont fontWithName:@"iconfont" size:35]];
-        [_addressIconLb setText:ICON_FONT_COPY];
-        __weak typeof(self) weakSelf = self;
-        [_addressIconLb addTapActionWithBlock:^(UIGestureRecognizer *gestureRecoginzer) {
-            // 复制
-            showMessage(showTypeSuccess,NSLocalizedString(@"复制成功", nil));
-            UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
-            [pasteboard setString:weakSelf.addressLb.text];
-        }];
+- (UIView *)amountView {
+    if (!_amountView) {
+        _amountView = [UIView new];
+        _amountView.backgroundColor = [UIColor commonCellcolor];
     }
-    return _addressIconLb;
+    return _amountView;
 }
 
-- (UIView *)lineView {
-    if (!_lineView) {
-        _lineView = [UIView new];
-        _lineView.backgroundColor = [UIColor commonCellcolor];
-    }
-    return _lineView;
-}
+//- (UILabel *)addressIconLb {
+//    if (!_addressIconLb) {
+//        _addressIconLb = [UILabel new];
+//        _addressIconLb.userInteractionEnabled = YES;
+////        _addressIconLb.text = ICON_FONT_COPY;
+//        _addressIconLb.textColor = [UIColor whiteColor];
+//        [_addressIconLb setFont:[UIFont fontWithName:@"iconfont" size:35]];
+//        [_addressIconLb setText:ICON_FONT_COPY];
+//        __weak typeof(self) weakSelf = self;
+//        [_addressIconLb addTapActionWithBlock:^(UIGestureRecognizer *gestureRecoginzer) {
+//            // 复制
+//            showMessage(showTypeSuccess,NSLocalizedString(@"复制成功", nil));
+//            UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+//            [pasteboard setString:weakSelf.addressLb.text];
+//        }];
+//    }
+//    return _addressIconLb;
+//}
 
-- (UILabel *)QRCodeLb {
-    if (!_QRCodeLb) {
-        _QRCodeLb = [UILabel new];
-        _QRCodeLb.text = NSLocalizedString(@"钱包二维码",nil);
-        _QRCodeLb.textColor = [UIColor whiteColor];
-        _QRCodeLb.font = [UIFont systemFontOfSize:16.0f];
-    }
-    return _QRCodeLb;
-}
+//- (UIView *)lineView {
+//    if (!_lineView) {
+//        _lineView = [UIView new];
+//        _lineView.backgroundColor = [UIColor commonCellcolor];
+//    }
+//    return _lineView;
+//}
+
+//- (UILabel *)QRCodeLb {
+//    if (!_QRCodeLb) {
+//        _QRCodeLb = [UILabel new];
+//        _QRCodeLb.text = NSLocalizedString(@"钱包二维码",nil);
+//        _QRCodeLb.textColor = [UIColor whiteColor];
+//        _QRCodeLb.font = [UIFont systemFontOfSize:16.0f];
+//    }
+//    return _QRCodeLb;
+//}
 
 - (UIImageView *)QRCodeImgView {
     if (!_QRCodeImgView) {
@@ -238,4 +246,30 @@
     }
     return _QRCodeImgView;
 }
+
+- (UIButton *)copyButton {
+    if (!_copyButton) {
+        _copyButton = [UIButton new];
+        [_copyButton setTitle:NSLocalizedString(@"复制", nil) forState:UIControlStateNormal];
+        [_copyButton setBackgroundColor:[UIColor commonPinkColor]];
+        [_copyButton addTarget:self action:@selector(copyButtonClicked:)];
+    }
+    return _copyButton;
+}
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [self.view endEditing:YES];
+}
+
+- (void)textFieldTextChanged:(UITextField *)tf {
+    NSString *icapAddress = [NSString stringWithFormat:@"iban:%@", [_wallet addressForIndex:_wallet.activeAccountIndex].icapAddress];
+    NSString *codeString = [NSString stringWithFormat:@"%@?amount=%@&token=%@",icapAddress,tf.text,_wallet.activeToken.symbol];
+    _QRCodeImgView.image = [ZSCreateQRCode createQRCodeWithString:codeString ViewController:self];
+}
+
+- (IBAction)copyButtonClicked:(id)sender {
+    showMessage(showTypeSuccess, NSLocalizedString(@"地址已经复制", nil));
+    [[UIPasteboard generalPasteboard] setString:_addressLb.text];
+}
+
 @end

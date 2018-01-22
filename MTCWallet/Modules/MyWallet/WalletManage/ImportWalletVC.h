@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "ZSBasePageViewController.h"
 
 @interface Mnemonic:NSObject
 @property (nonatomic,strong) NSString *mnemonics;
@@ -31,7 +32,7 @@
 @property (nonatomic,strong) NSString *hint;
 @end
 
-@interface ImportWalletVC : UIViewController
+@interface ImportWalletVC : ZSBasePageViewController
 
 @property (nonatomic, copy) void (^didImportMnemonic)(ImportWalletVC*,Mnemonic *);
 @property (nonatomic, copy) void (^didImportKeystore)(ImportWalletVC*,KeyStore *);

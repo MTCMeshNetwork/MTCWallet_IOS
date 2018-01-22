@@ -139,7 +139,7 @@ void sigPipe(int input) {
             NSLog(@"Address: %@", [address getHex]);
                 if (address) {
                     NSError *error = nil;
-                    GoGethEthereumClient *_client = GoGethNewEthereumClient(@"https://mainnet.infura.io/COXgE55j1G38qJX36eyV ", &error);
+                    GoGethEthereumClient *_client = GoGethNewEthereumClient(@"https://mainnet.infura.io/COXgE55j1G38qJX36eyV", &error);
                     //[_node getEthereumClient:&error];
                     
                     NSLog(@"Client: %@ %@", _client, error);

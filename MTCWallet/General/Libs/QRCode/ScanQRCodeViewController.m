@@ -44,7 +44,7 @@
     AVAuthorizationStatus authStatus =  [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
     if (authStatus == AVAuthorizationStatusRestricted || authStatus == AVAuthorizationStatusDenied)
     {
-        [self showAlertMessage:NSLocalizedString(@"开启相机才能扫描二维码哦",nil) cancelTitle:NSLocalizedString(@"残忍拒绝",nil) cancelClicked:nil confirmTitle:NSLocalizedString(@"去开启",nil) confirmClicked:^{
+        [self showAlertWithTitle:nil message:NSLocalizedString(@"开启相机才能扫描二维码哦",nil) cancelTitle:NSLocalizedString(@"残忍拒绝",nil) cancelClicked:nil confirmTitle:NSLocalizedString(@"去开启",nil) confirmClicked:^{
 
             NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
             if ([[UIApplication sharedApplication] canOpenURL:url]) {

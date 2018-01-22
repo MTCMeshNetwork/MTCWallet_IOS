@@ -46,6 +46,7 @@
 #import <ethers/EtherscanProvider.h>
 #import <ethers/FallbackProvider.h>
 #import <ethers/InfuraProvider.h>
+#import <ethers/MTCProvider.h>
 #import <ethers/Payment.h>
 #import <ethers/SecureData.h>
 
@@ -251,7 +252,8 @@ static NSString *DataStoreKeyActiveAccountChainId         = @"ACTIVE_ACCOUNT_CHA
         // Add INFURA and Etherscan unless explicitly disabled
 //        [fallbackProvider addProvider:[[InfuraProvider alloc] initWithChainId:chainId]];
 //        [fallbackProvider addProvider:[[EtherscanProvider alloc] initWithChainId:chainId apiKey:ETHERSCAN_API_KEY]];
-        if(chainId == ChainIdHomestead)[fallbackProvider addProvider:[[JsonRpcProvider alloc] initWithChainId:chainId url:[NSURL URLWithString:@"https://wallet.mtc.io/rpc/api"]]];
+//        if(chainId == ChainIdHomestead)
+        [fallbackProvider addProvider:[[MTCProvider alloc] initWithChainId:chainId]];
 //        if(chainId == ChainIdPrivate)[fallbackProvider addProvider:[[JsonRpcProvider alloc] initWithChainId:chainId url:[NSURL URLWithString:@"http://192.168.1.84:8081/tx/t1"]]];
         [provider startPolling];
 
@@ -260,10 +262,10 @@ static NSString *DataStoreKeyActiveAccountChainId         = @"ACTIVE_ACCOUNT_CHA
                                                      selector:@selector(notifyEtherPriceChanged:)
                                                          name:ProviderEtherPriceChangedNotification
                                                        object:provider];
-            [[NSNotificationCenter defaultCenter] addObserver:self
-                                                     selector:@selector(notifyTokenPriceChanged:)
-                                                         name:ProviderTokenPriceChangedNotification
-                                                       object:provider];
+//            [[NSNotificationCenter defaultCenter] addObserver:self
+//                                                     selector:@selector(notifyTokenPriceChanged:)
+//                                                         name:ProviderTokenPriceChangedNotification
+//                                                       object:provider];
         }
 
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -553,7 +555,7 @@ static NSString *DataStoreKeyActiveAccountChainId         = @"ACTIVE_ACCOUNT_CHA
     [signer cancelUnlock];
     [signer lock];
     
-    // 验证交易密码
+    // 验证钱包密码
     [signer unlockPassword:password callback:^(Signer *signer, NSError *error) {
         
         if (signer.unlocked && callback) {
@@ -600,8 +602,11 @@ static NSString *DataStoreKeyActiveAccountChainId         = @"ACTIVE_ACCOUNT_CHA
     BOOL isDollar = [unit isEqualToString:UNIT_DOLLAR];
     __block double assets = 0.0;
     [tokens enumerateObjectsUsingBlock:^(Erc20Token * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        
         NSString *balance = [Payment formatEther:obj.balance];
+        if (obj.address == nil && obj.price == nil) {
+            obj.price = @(self.etherPrice);
+            obj.cnyPrice = @(self.etherPrice * 6.4);
+        }
         assets += (isDollar?obj.price.doubleValue:obj.cnyPrice.doubleValue) * balance.doubleValue;
     }];
     return [NSString stringWithFormat:@"%@ %.2f",unit,assets];
@@ -781,7 +786,7 @@ static NSString *DataStoreKeyActiveAccountChainId         = @"ACTIVE_ACCOUNT_CHA
             showMessage(showTypeError, NSLocalizedString(@"两次密码不一致", nil));
             return ;
         }
-        account = [Account accountWithPrivateKey:[pk.key hasPrefix:@"0x"]?pk.key:[SecureData hexStringToData:[@"0x" stringByAppendingString:pk.key]]];
+        account = [Account accountWithPrivateKey:[SecureData hexStringToData:[pk.key hasPrefix:@"0x"]?pk.key:[@"0x" stringByAppendingString:pk.key]]];
         onFilish(vc,pk.name,pk.pwd);
     };
     return vc;
@@ -1203,7 +1208,11 @@ static NSString *DataStoreKeyActiveAccountChainId         = @"ACTIVE_ACCOUNT_CHA
 //                showMessage(showTypeError, error.localizedDescription);
 //            } else
             if(idx == 1){
-                callback([ExportWalletVC export:signer.mnemonicPhrase withType:ExportTypeMnmenic]);
+                if (signer.mnemonicPhrase) {
+                    callback([ExportWalletVC export:signer.mnemonicPhrase withType:ExportTypeMnmenic]);
+                }else {
+                    callback(nil);
+                }
             }else {
                 callback([ExportWalletVC export:signer.privateKey withType:ExportTypePrivateKey]);
             }

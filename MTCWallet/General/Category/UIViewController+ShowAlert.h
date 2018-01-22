@@ -14,5 +14,5 @@
 
 - (void)showAlertWithTitle:(NSString *)title Message:(NSString *)msg clicked:(void(^)(NSString *))clicked;
 
-- (void)showAlertMessage:(NSString *)msg cancelTitle:(NSString *)cancelTitle cancelClicked:(void(^)(void))cancelClicked confirmTitle:(NSString *)confirmTitle confirmClicked:(void(^)(void))confirmClicked;
+- (void)showAlertWithTitle:(NSString *)title message:(NSString *)msg cancelTitle:(NSString *)cancelTitle cancelClicked:(void(^)(void))cancelClicked confirmTitle:(NSString *)confirmTitle confirmClicked:(void(^)(void))confirmClicked;
 @end

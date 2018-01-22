@@ -46,6 +46,11 @@
 //深灰
 + (UIColor *)commonDarkGrayTextColor;
 
+//浅灰
++ (UIColor *)commonlightGrayTextColor;
+
 //橘黄
 + (UIColor *)commonOrangeTextColor;
+
++ (UIColor *)commonAccountsCellcolor;
 @end

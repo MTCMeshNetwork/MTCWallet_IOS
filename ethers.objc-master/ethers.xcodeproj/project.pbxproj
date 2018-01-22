@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		5840C46120104DE1005331FA /* Erc20Token.h in Headers */ = {isa = PBXBuildFile; fileRef = 5840C45F20104DE1005331FA /* Erc20Token.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5840C46220104DE1005331FA /* Erc20Token.m in Sources */ = {isa = PBXBuildFile; fileRef = 5840C46020104DE1005331FA /* Erc20Token.m */; };
+		5877596820132C4600F4B9F2 /* MTCProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = 5877596620132C4600F4B9F2 /* MTCProvider.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5877596920132C4600F4B9F2 /* MTCProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 5877596720132C4600F4B9F2 /* MTCProvider.m */; };
 		E2317E6D1E3191AC00DBE3E4 /* ethers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E2317E631E3191AC00DBE3E4 /* ethers.framework */; };
 		E2317E741E3191AC00DBE3E4 /* ethers.h in Headers */ = {isa = PBXBuildFile; fileRef = E2317E661E3191AC00DBE3E4 /* ethers.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		E2317E931E31970900DBE3E4 /* Payment.h in Headers */ = {isa = PBXBuildFile; fileRef = E2317E7D1E31970900DBE3E4 /* Payment.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -130,6 +132,8 @@
 /* Begin PBXFileReference section */
 		5840C45F20104DE1005331FA /* Erc20Token.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Erc20Token.h; path = src/Erc20Token.h; sourceTree = "<group>"; };
 		5840C46020104DE1005331FA /* Erc20Token.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = Erc20Token.m; path = src/Erc20Token.m; sourceTree = "<group>"; };
+		5877596620132C4600F4B9F2 /* MTCProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MTCProvider.h; path = src/Providers/ApiProviders/MTCProvider.h; sourceTree = "<group>"; };
+		5877596720132C4600F4B9F2 /* MTCProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = MTCProvider.m; path = src/Providers/ApiProviders/MTCProvider.m; sourceTree = "<group>"; };
 		E2317E631E3191AC00DBE3E4 /* ethers.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ethers.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E2317E661E3191AC00DBE3E4 /* ethers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ethers.h; sourceTree = "<group>"; };
 		E2317E671E3191AC00DBE3E4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -356,6 +360,8 @@
 				E2317ECD1E31988900DBE3E4 /* InfuraProvider.m */,
 				E2317ECE1E31988900DBE3E4 /* JsonRpcProvider.h */,
 				E2317ECF1E31988900DBE3E4 /* JsonRpcProvider.m */,
+				5877596620132C4600F4B9F2 /* MTCProvider.h */,
+				5877596720132C4600F4B9F2 /* MTCProvider.m */,
 			);
 			name = ApiProviders;
 			sourceTree = "<group>";
@@ -512,6 +518,7 @@
 				E2FA03D21E406FB30013E5A7 /* Signature.h in Headers */,
 				E2FA04861E42A5660013E5A7 /* SecureData.h in Headers */,
 				5840C46120104DE1005331FA /* Erc20Token.h in Headers */,
+				5877596820132C4600F4B9F2 /* MTCProvider.h in Headers */,
 				E2317E931E31970900DBE3E4 /* Payment.h in Headers */,
 				E2FA04821E42A0300013E5A7 /* Utilities.h in Headers */,
 				E2317EDC1E31988900DBE3E4 /* EtherchainProvider.h in Headers */,
@@ -686,6 +693,7 @@
 				E2317ED71E31988900DBE3E4 /* InfuraProvider.m in Sources */,
 				E2317F0C1E31994500DBE3E4 /* bip32.c in Sources */,
 				E2317F4E1E3199BD00DBE3E4 /* crypto_scrypt-nosse.c in Sources */,
+				5877596920132C4600F4B9F2 /* MTCProvider.m in Sources */,
 				E2317E9A1E31970900DBE3E4 /* TransactionInfo.m in Sources */,
 				E2317F0B1E31994500DBE3E4 /* base58.c in Sources */,
 				E2317F0F1E31994500DBE3E4 /* bip39.c in Sources */,

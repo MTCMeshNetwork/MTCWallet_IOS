@@ -21,6 +21,7 @@
 @property (nonatomic, strong) NSString      *name;
 
 + (Erc20Token *)tokenFromDictionary:(NSDictionary *)dic;
++ (Erc20Token *)erc20Token:(NSString *)address symbol:(NSString *)symbol;
 - (NSDictionary*)dictionaryRepresentation;
 
 @end
